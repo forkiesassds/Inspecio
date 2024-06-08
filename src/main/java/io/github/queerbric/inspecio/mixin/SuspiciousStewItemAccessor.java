@@ -17,20 +17,21 @@
 
 package io.github.queerbric.inspecio.mixin;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SuspiciousStewItem;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 import java.util.function.Consumer;
 
-@ClientOnly
+@Environment(EnvType.CLIENT)
 @Mixin(SuspiciousStewItem.class)
 public interface SuspiciousStewItemAccessor {
 	@Invoker
-	static void invokeConsumeStatusEffects(ItemStack stack, Consumer<StatusEffectInstance> consumer) {
+	static void invokeForEachEffect(ItemStack stack, Consumer<StatusEffectInstance> consumer) {
 		throw new IllegalStateException("Mixin injection failed.");
 	}
 }

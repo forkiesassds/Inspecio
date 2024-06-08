@@ -19,9 +19,11 @@ package io.github.queerbric.inspecio.tooltip;
 
 import io.github.queerbric.inspecio.Inspecio;
 import io.github.queerbric.inspecio.mixin.DecorationItemAccessor;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.item.TooltipData;
 import net.minecraft.client.texture.PaintingManager;
@@ -31,9 +33,7 @@ import net.minecraft.entity.decoration.painting.PaintingEntity;
 import net.minecraft.entity.decoration.painting.PaintingVariant;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.Holder;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
-import org.quiltmc.qsl.tooltip.api.ConvertibleTooltipData;
+import net.minecraft.registry.entry.RegistryEntry;
 
 import java.util.Optional;
 
@@ -45,8 +45,8 @@ import java.util.Optional;
  * @version 1.8.0
  * @since 1.8.0
  */
-@ClientOnly
-public record PaintingTooltipComponent(PaintingVariant painting) implements ConvertibleTooltipData, TooltipComponent {
+@Environment(EnvType.CLIENT)
+public record PaintingTooltipComponent(PaintingVariant painting) implements InspectioTooltipData, TooltipComponent {
 	public static Optional<TooltipData> of(ItemStack stack) {
 		if (!Inspecio.getConfig().hasPainting())
 			return Optional.empty();
@@ -60,8 +60,8 @@ public record PaintingTooltipComponent(PaintingVariant painting) implements Conv
 			var entityNbt = nbt.getCompound("EntityTag");
 
 			if (entityNbt != null) {
-				return PaintingEntity.parse(entityNbt)
-						.map(Holder::value)
+				return PaintingEntity.readVariantFromNbt(entityNbt)
+						.map(RegistryEntry::value)
 						.map(PaintingTooltipComponent::new);
 			}
 		}
@@ -85,7 +85,7 @@ public record PaintingTooltipComponent(PaintingVariant painting) implements Conv
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int x, int y, GuiGraphics graphics) {
+	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
 		PaintingManager paintingManager = MinecraftClient.getInstance().getPaintingManager();
 		Sprite sprite = paintingManager.getPaintingSprite(this.painting);
 		graphics.drawSprite(x, y - 2, 0, this.getWidth(textRenderer), this.getHeight(), sprite);

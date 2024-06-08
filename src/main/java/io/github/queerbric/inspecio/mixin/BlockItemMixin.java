@@ -21,6 +21,8 @@ import io.github.queerbric.inspecio.Inspecio;
 import io.github.queerbric.inspecio.InspecioConfig;
 import io.github.queerbric.inspecio.api.InventoryProvider;
 import io.github.queerbric.inspecio.tooltip.*;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.block.*;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.item.TooltipContext;
@@ -31,7 +33,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.world.World;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -42,7 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@ClientOnly
+@Environment(EnvType.CLIENT)
 @Mixin(BlockItem.class)
 public abstract class BlockItemMixin extends Item {
 	@Shadow
@@ -59,7 +60,7 @@ public abstract class BlockItemMixin extends Item {
 		var effectsConfig = inspecioConfig.getEffectsConfig();
 
 		if (effectsConfig.hasBeacon() && this.getBlock() instanceof BeaconBlock) {
-			var blockEntityTag = BlockItem.getBlockEntityNbtFromStack(stack);
+			var blockEntityTag = BlockItem.getBlockEntityNbt(stack);
 			var effectsList = new ArrayList<StatusEffectInstance>();
 			var primary = Inspecio.getRawEffectFromTag(blockEntityTag, "Primary");
 			var secondary = Inspecio.getRawEffectFromTag(blockEntityTag, "Secondary");

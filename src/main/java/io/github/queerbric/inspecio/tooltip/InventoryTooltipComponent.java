@@ -20,7 +20,7 @@ package io.github.queerbric.inspecio.tooltip;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.queerbric.inspecio.api.InventoryProvider;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.item.TooltipData;
 import net.minecraft.item.BlockItem;
@@ -28,7 +28,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.qsl.tooltip.api.ConvertibleTooltipData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +40,7 @@ import java.util.Optional;
  * @version 1.8.1
  * @since 1.0.0
  */
-public class InventoryTooltipComponent implements ConvertibleTooltipData, TooltipComponent {
+public class InventoryTooltipComponent implements InspectioTooltipData, TooltipComponent {
 	private static final Identifier STATS_ICONS_TEXTURE = new Identifier("textures/gui/container/stats_icons.png");
 	private final List<ItemStack> inventory;
 	private final int columns;
@@ -59,7 +58,7 @@ public class InventoryTooltipComponent implements ConvertibleTooltipData, Toolti
 		}
 
 		List<ItemStack> inventory = context.inventory();
-		var blockEntityNbt = BlockItem.getBlockEntityNbtFromStack(stack);
+		var blockEntityNbt = BlockItem.getBlockEntityNbt(stack);
 		if (blockEntityNbt == null)
 			return Optional.empty();
 
@@ -107,7 +106,7 @@ public class InventoryTooltipComponent implements ConvertibleTooltipData, Toolti
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int xOffset, int yOffset, GuiGraphics graphics) {
+	public void drawItems(TextRenderer textRenderer, int xOffset, int yOffset, DrawContext graphics) {
 		int x = 1;
 		int y = 1;
 		int lines = this.getColumns();
@@ -124,7 +123,7 @@ public class InventoryTooltipComponent implements ConvertibleTooltipData, Toolti
 		}
 	}
 
-	public static void drawSlot(GuiGraphics graphics, int x, int y, int z, float[] color) {
+	public static void drawSlot(DrawContext graphics, int x, int y, int z, float[] color) {
 		if (color == null)
 			color = new float[]{1.f, 1.f, 1.f};
 		RenderSystem.setShaderColor(color[0], color[1], color[2], 1.f);

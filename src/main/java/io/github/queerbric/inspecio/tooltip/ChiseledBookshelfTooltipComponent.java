@@ -17,24 +17,24 @@
 
 package io.github.queerbric.inspecio.tooltip;
 
-import com.mojang.blaze3d.lighting.DiffuseLighting;
 import io.github.queerbric.inspecio.Inspecio;
 import io.github.queerbric.inspecio.api.InventoryProvider;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.ChiseledBookshelfBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.item.TooltipData;
+import net.minecraft.client.render.DiffuseLighting;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
-import org.quiltmc.qsl.tooltip.api.ConvertibleTooltipData;
 
 import java.util.Optional;
 
@@ -45,8 +45,8 @@ import java.util.Optional;
  * @version 1.8.0
  * @since 1.7.0
  */
-@ClientOnly
-public class ChiseledBookshelfTooltipComponent implements ConvertibleTooltipData, TooltipComponent {
+@Environment(EnvType.CLIENT)
+public class ChiseledBookshelfTooltipComponent implements InspectioTooltipData, TooltipComponent {
 	private static final MinecraftClient CLIENT = MinecraftClient.getInstance();
 	private final BlockState state;
 
@@ -60,7 +60,7 @@ public class ChiseledBookshelfTooltipComponent implements ConvertibleTooltipData
 			return Optional.empty();
 		}
 
-		var nbt = BlockItem.getBlockEntityNbtFromStack(stack);
+		var nbt = BlockItem.getBlockEntityNbt(stack);
 		if (nbt == null)
 			return Optional.empty();
 
@@ -74,8 +74,8 @@ public class ChiseledBookshelfTooltipComponent implements ConvertibleTooltipData
 		}
 
 		var state = Blocks.CHISELED_BOOKSHELF.getDefaultState();
-		for (int slot = 0; slot < ChiseledBookshelfBlock.SLOT_OCCUPATION_PROPERTIES.size(); slot++) {
-			state = state.with(ChiseledBookshelfBlock.SLOT_OCCUPATION_PROPERTIES.get(slot), !inventory.get(slot).isEmpty());
+		for (int slot = 0; slot < ChiseledBookshelfBlock.SLOT_OCCUPIED_PROPERTIES.size(); slot++) {
+			state = state.with(ChiseledBookshelfBlock.SLOT_OCCUPIED_PROPERTIES.get(slot), !inventory.get(slot).isEmpty());
 		}
 
 		return Optional.of(new ChiseledBookshelfTooltipComponent(state));
@@ -97,8 +97,8 @@ public class ChiseledBookshelfTooltipComponent implements ConvertibleTooltipData
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int x, int y, GuiGraphics graphics) {
-		DiffuseLighting.setupInventoryEntityLighting();
+	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
+		DiffuseLighting.disableGuiDepthLighting();
 		MatrixStack matrices = graphics.getMatrices();
 		matrices.translate(x, y, 0);
 		matrices.scale(-1, -1, 1);
@@ -109,6 +109,6 @@ public class ChiseledBookshelfTooltipComponent implements ConvertibleTooltipData
 				LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV
 		);
 		vertexConsumer.draw();
-		DiffuseLighting.setup3DGuiLighting();
+		DiffuseLighting.enableGuiDepthLighting();
 	}
 }

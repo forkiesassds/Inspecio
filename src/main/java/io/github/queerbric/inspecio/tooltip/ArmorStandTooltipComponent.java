@@ -22,7 +22,7 @@ import io.github.queerbric.inspecio.InspecioConfig;
 import io.github.queerbric.inspecio.mixin.EntityAccessor;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.item.TooltipData;
 import net.minecraft.client.util.math.MatrixStack;
@@ -67,7 +67,7 @@ public class ArmorStandTooltipComponent extends EntityTooltipComponent<InspecioC
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int x, int y, GuiGraphics graphics) {
+	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
 		if (this.shouldRender()) {
 			MatrixStack matrices = graphics.getMatrices();
 			matrices.push();

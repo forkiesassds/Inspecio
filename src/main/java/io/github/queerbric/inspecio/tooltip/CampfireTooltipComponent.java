@@ -21,7 +21,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.queerbric.inspecio.Inspecio;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.item.TooltipData;
 import net.minecraft.item.BlockItem;
@@ -29,7 +29,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
-import org.quiltmc.qsl.tooltip.api.ConvertibleTooltipData;
 
 import java.util.Optional;
 
@@ -40,7 +39,7 @@ import java.util.Optional;
  * @version 1.8.0
  * @since 1.1.0
  */
-public class CampfireTooltipComponent implements ConvertibleTooltipData, TooltipComponent {
+public class CampfireTooltipComponent implements InspectioTooltipData, TooltipComponent {
 	private static final Identifier ATLAS_TEXTURE = new Identifier("textures/atlas/blocks.png");
 
 	private final DefaultedList<ItemStack> inventory;
@@ -55,7 +54,7 @@ public class CampfireTooltipComponent implements ConvertibleTooltipData, Tooltip
 		if (!Inspecio.getConfig().getContainersConfig().isCampfireEnabled())
 			return Optional.empty();
 
-		var nbt = BlockItem.getBlockEntityNbtFromStack(stack);
+		var nbt = BlockItem.getBlockEntityNbt(stack);
 		if (nbt == null)
 			return Optional.empty();
 
@@ -92,7 +91,7 @@ public class CampfireTooltipComponent implements ConvertibleTooltipData, Tooltip
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int xOffset, int yOffset, GuiGraphics graphics) {
+	public void drawItems(TextRenderer textRenderer, int xOffset, int yOffset, DrawContext graphics) {
 		int x = 1 + 18 * 2;
 		int y = 1 + 18 * 2;
 

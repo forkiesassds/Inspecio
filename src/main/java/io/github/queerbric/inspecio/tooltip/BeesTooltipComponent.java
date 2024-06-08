@@ -22,7 +22,7 @@ import io.github.queerbric.inspecio.InspecioConfig;
 import net.minecraft.block.BeehiveBlock;
 import net.minecraft.block.entity.BeehiveBlockEntity;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.item.TooltipData;
 import net.minecraft.client.util.math.MatrixStack;
@@ -89,7 +89,7 @@ public class BeesTooltipComponent extends EntityTooltipComponent<InspecioConfig.
 			}
 		}
 
-		var nbt = BlockItem.getBlockEntityNbtFromStack(stack);
+		var nbt = BlockItem.getBlockEntityNbt(stack);
 		if ((nbt == null || !nbt.contains(BeehiveBlockEntity.BEES_KEY, NbtElement.LIST_TYPE)) && !config.shouldShowHoney())
 			return Optional.empty();
 
@@ -115,7 +115,7 @@ public class BeesTooltipComponent extends EntityTooltipComponent<InspecioConfig.
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int x, int y, GuiGraphics graphics) {
+	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
 		MatrixStack matrices = graphics.getMatrices();
 		matrices.push();
 

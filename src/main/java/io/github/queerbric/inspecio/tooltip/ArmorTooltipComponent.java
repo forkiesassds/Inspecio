@@ -20,15 +20,14 @@ package io.github.queerbric.inspecio.tooltip;
 import io.github.queerbric.inspecio.Inspecio;
 import io.github.queerbric.inspecio.mixin.ItemStackAccessor;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ItemStack;
-import org.quiltmc.qsl.tooltip.api.ConvertibleTooltipData;
 
 import java.util.Optional;
 
-public class ArmorTooltipComponent implements ConvertibleTooltipData, TooltipComponent {
+public class ArmorTooltipComponent implements InspectioTooltipData, TooltipComponent {
 	private final int prot;
 
 	public ArmorTooltipComponent(int prot) {
@@ -37,7 +36,7 @@ public class ArmorTooltipComponent implements ConvertibleTooltipData, TooltipCom
 
 	public static Optional<ArmorTooltipComponent> of(ItemStack stack) {
 		if (stack.getItem() instanceof ArmorItem armor && Inspecio.getConfig().hasArmor()) {
-			int prot = armor.getMaterial().getProtection(armor.getArmorSlot());
+			int prot = armor.getMaterial().getProtection(armor.getType());
 
 			int hideFlags = ((ItemStackAccessor) (Object) stack).invokeGetHideFlags();
 			if (ItemStackAccessor.invokeIsSectionVisible(hideFlags, ItemStack.TooltipSection.MODIFIERS)) {
@@ -64,7 +63,7 @@ public class ArmorTooltipComponent implements ConvertibleTooltipData, TooltipCom
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int x, int y, GuiGraphics graphics) {
+	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
 		for (int i = 0; i < this.prot / 2; i++) {
 			graphics.drawTexture(Inspecio.GUI_ICONS_TEXTURE, x + i * 9, y, 34, 9, 9, 9, 256, 256);
 		}

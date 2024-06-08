@@ -19,17 +19,14 @@ package io.github.queerbric.inspecio.tooltip;
 
 import com.google.common.collect.Lists;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.render.VertexConsumerProvider.Immediate;
-import net.minecraft.client.render.item.ItemRenderer;
-import net.minecraft.client.util.math.MatrixStack;
 import org.joml.Matrix4f;
-import org.quiltmc.qsl.tooltip.api.ConvertibleTooltipData;
 
 import java.util.List;
 
-public class CompoundTooltipComponent implements TooltipComponent, ConvertibleTooltipData {
+public class CompoundTooltipComponent implements TooltipComponent, InspectioTooltipData {
 	private final List<TooltipComponent> components = Lists.newArrayList();
 
 	public void addComponent(TooltipComponent component) {
@@ -62,7 +59,7 @@ public class CompoundTooltipComponent implements TooltipComponent, ConvertibleTo
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int x, int y, GuiGraphics graphics) {
+	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
 		int yOff = 0;
 		for (var comp : components) {
 			comp.drawItems(textRenderer, x, y + yOff, graphics);

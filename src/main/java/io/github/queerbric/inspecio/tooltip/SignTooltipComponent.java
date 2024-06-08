@@ -17,27 +17,28 @@
 
 package io.github.queerbric.inspecio.tooltip;
 
-import com.mojang.blaze3d.lighting.DiffuseLighting;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.queerbric.inspecio.Inspecio;
 import io.github.queerbric.inspecio.SignTooltipMode;
 import net.minecraft.block.AbstractSignBlock;
+import net.minecraft.block.WoodType;
 import net.minecraft.block.entity.SignText;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.item.TooltipData;
 import net.minecraft.client.model.Model;
+import net.minecraft.client.render.DiffuseLighting;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.TexturedRenderLayers;
+import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.HangingSignBlockEntityRenderer;
 import net.minecraft.client.render.block.entity.SignBlockEntityRenderer;
-import net.minecraft.client.resource.Material;
+import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.HangingSignItem;
@@ -49,24 +50,22 @@ import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.SignType;
-import net.minecraft.util.math.Axis;
+import net.minecraft.util.math.RotationAxis;
 import org.joml.Matrix4f;
-import org.quiltmc.qsl.tooltip.api.ConvertibleTooltipData;
 
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Optional;
 
-public abstract class SignTooltipComponent<M extends Model> implements ConvertibleTooltipData, TooltipComponent {
+public abstract class SignTooltipComponent<M extends Model> implements InspectioTooltipData, TooltipComponent {
 	protected static final MinecraftClient CLIENT = MinecraftClient.getInstance();
 	private final SignTooltipMode tooltipMode = Inspecio.getConfig().getSignTooltipMode();
-	protected final SignType type;
+	protected final WoodType type;
 	private final SignText front;
 	private final SignText back;
 	protected final M model;
 
-	public SignTooltipComponent(SignType type, SignText front, SignText back, M model) {
+	public SignTooltipComponent(WoodType type, SignText front, SignText back, M model) {
 		this.type = type;
 		this.front = front;
 		this.back = back;
@@ -79,17 +78,17 @@ public abstract class SignTooltipComponent<M extends Model> implements Convertib
 
 		if (stack.getItem() instanceof HangingSignItem signItem) {
 			var block = signItem.getBlock();
-			var nbt = BlockItem.getBlockEntityNbtFromStack(stack);
-			if (nbt != null) return Optional.ofNullable(fromTag(AbstractSignBlock.getSignType(block), nbt, true));
+			var nbt = BlockItem.getBlockEntityNbt(stack);
+			if (nbt != null) return Optional.ofNullable(fromTag(AbstractSignBlock.getWoodType(block), nbt, true));
 		} else if (stack.getItem() instanceof SignItem signItem) {
 			var block = signItem.getBlock();
-			var nbt = BlockItem.getBlockEntityNbtFromStack(stack);
-			if (nbt != null) return Optional.ofNullable(fromTag(AbstractSignBlock.getSignType(block), nbt, false));
+			var nbt = BlockItem.getBlockEntityNbt(stack);
+			if (nbt != null) return Optional.ofNullable(fromTag(AbstractSignBlock.getWoodType(block), nbt, false));
 		}
 		return Optional.empty();
 	}
 
-	public static SignTooltipComponent<?> fromTag(SignType type, NbtCompound nbt, boolean hanging) {
+	public static SignTooltipComponent<?> fromTag(WoodType type, NbtCompound nbt, boolean hanging) {
 		Optional<SignText> front = Optional.empty();
 		Optional<SignText> back = Optional.empty();
 
@@ -178,7 +177,7 @@ public abstract class SignTooltipComponent<M extends Model> implements Convertib
 		int signColor = this.getText().getColor().getSignColor();
 		var messages = this.getOrderedMessages();
 
-		if (this.getText().hasGlowingText()) {
+		if (this.getText().isGlowing()) {
 			int outlineColor;
 			if (this.getText().getColor() == DyeColor.BLACK) {
 				outlineColor = -988212;
@@ -214,11 +213,11 @@ public abstract class SignTooltipComponent<M extends Model> implements Convertib
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int x, int y, GuiGraphics graphics) {
+	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
 		if (this.tooltipMode != SignTooltipMode.FANCY)
 			return;
 
-		DiffuseLighting.setupFlatGuiLighting();
+		DiffuseLighting.disableGuiDepthLighting();
 		MatrixStack matrices = graphics.getMatrices();
 		matrices.push();
 		matrices.translate(x + 2, y, 0);
@@ -242,12 +241,12 @@ public abstract class SignTooltipComponent<M extends Model> implements Convertib
 		}
 		matrices.pop();
 
-		DiffuseLighting.setup3DGuiLighting();
+		DiffuseLighting.enableGuiDepthLighting();
 	}
 
-	public abstract Material getSignTextureId();
+	public abstract SpriteIdentifier getSignTextureId();
 
-	public abstract void renderModel(GuiGraphics graphics, VertexConsumer vertexConsumer);
+	public abstract void renderModel(DrawContext graphics, VertexConsumer vertexConsumer);
 
 	/**
 	 * {@return the vertical offset between the start of the component and where the text lines should be drawn}
@@ -256,7 +255,7 @@ public abstract class SignTooltipComponent<M extends Model> implements Convertib
 
 	public static class Sign extends SignTooltipComponent<SignBlockEntityRenderer.SignModel> {
 
-		public Sign(SignType type, SignText front, SignText back) {
+		public Sign(WoodType type, SignText front, SignText back) {
 			super(type, front, back, SignBlockEntityRenderer.createSignModel(CLIENT.getEntityModelLoader(), type));
 		}
 
@@ -271,16 +270,16 @@ public abstract class SignTooltipComponent<M extends Model> implements Convertib
 		}
 
 		@Override
-		public Material getSignTextureId() {
+		public SpriteIdentifier getSignTextureId() {
 			return TexturedRenderLayers.getSignTextureId(this.type);
 		}
 
 		@Override
-		public void renderModel(GuiGraphics graphics, VertexConsumer vertexConsumer) {
+		public void renderModel(DrawContext graphics, VertexConsumer vertexConsumer) {
 			graphics.getMatrices().translate(45, 56, 0);
 
 			if (this.shouldShowBack()) {
-				graphics.getMatrices().multiply(Axis.Y_POSITIVE.rotationDegrees(180));
+				graphics.getMatrices().multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
 			}
 
 			graphics.getMatrices().scale(65, 65, -65);
@@ -296,9 +295,9 @@ public abstract class SignTooltipComponent<M extends Model> implements Convertib
 	}
 
 	public static class HangingSign extends SignTooltipComponent<HangingSignBlockEntityRenderer.HangingSignModel> {
-		private final Identifier textureId = new Identifier("textures/gui/hanging_signs/" + this.type.getName() + ".png");
+		private final Identifier textureId = new Identifier("textures/gui/hanging_signs/" + this.type.name() + ".png");
 
-		public HangingSign(SignType type, SignText front, SignText back) {
+		public HangingSign(WoodType type, SignText front, SignText back) {
 			super(type, front, back, null);
 		}
 
@@ -313,12 +312,12 @@ public abstract class SignTooltipComponent<M extends Model> implements Convertib
 		}
 
 		@Override
-		public Material getSignTextureId() {
+		public SpriteIdentifier getSignTextureId() {
 			return null;
 		}
 
 		@Override
-		public void renderModel(GuiGraphics graphics, VertexConsumer vertexConsumer) {
+		public void renderModel(DrawContext graphics, VertexConsumer vertexConsumer) {
 			graphics.getMatrices().translate(44.5, 32, 0);
 			RenderSystem.setShaderColor(1.f, 1.f, 1.f, 1.f);
 			graphics.getMatrices().scale(4.f, 4.f, 1.f);

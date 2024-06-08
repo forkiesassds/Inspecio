@@ -25,7 +25,7 @@ import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import it.unimi.dsi.fastutil.floats.FloatList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.VertexConsumerProvider.Immediate;
@@ -38,11 +38,10 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.joml.Matrix4f;
-import org.quiltmc.qsl.tooltip.api.ConvertibleTooltipData;
 
 import java.util.List;
 
-public class StatusEffectTooltipComponent implements ConvertibleTooltipData, TooltipComponent {
+public class StatusEffectTooltipComponent implements InspectioTooltipData, TooltipComponent {
 	private static final Identifier MYSTERY_TEXTURE = new Identifier(Inspecio.NAMESPACE, "textures/mob_effects/mystery.png");
 	private List<StatusEffectInstance> list = Lists.newArrayList();
 	private final FloatList chances = new FloatArrayList();
@@ -126,7 +125,7 @@ public class StatusEffectTooltipComponent implements ConvertibleTooltipData, Too
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int x, int y, GuiGraphics graphics) {
+	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
 		if (this.hidden) {
 			graphics.drawTexture(MYSTERY_TEXTURE, x, y, 0, 0, 18, 18, 18, 18);
 		} else {
@@ -158,7 +157,7 @@ public class StatusEffectTooltipComponent implements ConvertibleTooltipData, Too
 					off += 5;
 				}
 
-				Integer color = statusEffectInstance.getEffectType().getType().getFormatting().getColorValue();
+				Integer color = statusEffectInstance.getEffectType().getCategory().getFormatting().getColorValue();
 				textRenderer.draw(statusEffectName, x + 24, y + i * 20 + off, color != null ? color : 16777215,
 						true, model, immediate, TextRenderer.TextLayerType.NORMAL, 0, LightmapTextureManager.MAX_LIGHT_COORDINATE);
 				if (statusEffectInstance.getDuration() > 1) {
@@ -185,7 +184,7 @@ public class StatusEffectTooltipComponent implements ConvertibleTooltipData, Too
 	}
 
 	private Text getDuration(int index, StatusEffectInstance statusEffect) {
-		var duration = StatusEffectUtil.durationToString(statusEffect, multiplier);
+		var duration = StatusEffectUtil.getDurationText(statusEffect, multiplier);
 
 		if (this.chances.size() > index && this.chances.getFloat(index) < 1f) {
 			duration = duration.copy().append(" - " + (int) (this.chances.getFloat(index) * 100f) + "%");

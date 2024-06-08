@@ -17,12 +17,13 @@
 
 package io.github.queerbric.inspecio.mixin;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.entity.boss.WitherEntity;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@ClientOnly
+@Environment(EnvType.CLIENT)
 @Mixin(WitherEntity.class)
 public interface WitherEntityAccessor {
 	@Accessor

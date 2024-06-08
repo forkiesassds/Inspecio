@@ -19,19 +19,20 @@ package io.github.queerbric.inspecio.mixin;
 
 import io.github.queerbric.inspecio.Inspecio;
 import io.github.queerbric.inspecio.tooltip.StatusEffectTooltipComponent;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.item.TooltipData;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.ArrowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SpectralArrowItem;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
 import org.spongepowered.asm.mixin.Mixin;
 
 import java.util.Collections;
 import java.util.Optional;
 
-@ClientOnly
+@Environment(EnvType.CLIENT)
 @Mixin(SpectralArrowItem.class)
 public class SpectralArrowItemMixin extends ArrowItem {
 	public SpectralArrowItemMixin(Settings settings) {

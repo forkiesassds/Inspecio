@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "inspecio",
+  "version": "${version}",
+  "name": "Inspecio",
+  "description": "Adds a lot of fancy tooltips to existing items.",
+  "authors": [
+    "LambdAurora",
+    "Emi"
+  ],
+  "contact": {
+    "homepage": "https://modrinth.com/mod/inspecio",
+    "sources": "https://github.com/Queerbric/Inspecio.git",
+    "issues": "https://github.com/Queerbric/Inspecio/issues"
+  },
+  "license": "LGPL-3.0-only",
+  "icon": "assets/inspecio/icon.png",
+  "entrypoints": {
+    "client": [
+      "io.github.queerbric.inspecio.Inspecio"
+    ]
+  },
+  "depends": {
+    "minecraft": "~1.20",
+    "fabricloader": ">=0.15.0",
+    "java": ">=17"
+  },
+  "mixins": [ "inspecio.mixins.json" ]
+}

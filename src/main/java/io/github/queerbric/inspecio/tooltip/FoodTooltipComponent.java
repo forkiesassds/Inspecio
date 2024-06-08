@@ -21,13 +21,12 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.queerbric.inspecio.Inspecio;
 import io.github.queerbric.inspecio.SaturationTooltipMode;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.item.FoodComponent;
 import net.minecraft.util.math.MathHelper;
-import org.quiltmc.qsl.tooltip.api.ConvertibleTooltipData;
 
-public record FoodTooltipComponent(int hunger, float saturation) implements ConvertibleTooltipData, TooltipComponent {
+public record FoodTooltipComponent(int hunger, float saturation) implements InspectioTooltipData, TooltipComponent {
 	public FoodTooltipComponent(FoodComponent component) {
 		this(component.getHunger(), component.getHunger() * component.getSaturationModifier());
 	}
@@ -62,7 +61,7 @@ public record FoodTooltipComponent(int hunger, float saturation) implements Conv
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int x, int y, GuiGraphics graphics) {
+	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
 		var foodConfig = Inspecio.getConfig().getFoodConfig();
 
 		int saturationY = y;

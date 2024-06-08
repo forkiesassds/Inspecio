@@ -17,13 +17,13 @@
 
 package io.github.queerbric.inspecio.tooltip;
 
-import com.mojang.blaze3d.lighting.DiffuseLighting;
 import io.github.queerbric.inspecio.InspecioConfig;
 import io.github.queerbric.inspecio.mixin.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
+import net.minecraft.client.render.DiffuseLighting;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Bucketable;
@@ -37,8 +37,7 @@ import net.minecraft.entity.passive.SquidEntity;
 import net.minecraft.entity.passive.TropicalFishEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.util.math.Axis;
-import org.quiltmc.qsl.tooltip.api.ConvertibleTooltipData;
+import net.minecraft.util.math.RotationAxis;
 
 /**
  * Represents a tooltip component for entities.
@@ -47,7 +46,7 @@ import org.quiltmc.qsl.tooltip.api.ConvertibleTooltipData;
  * @version 1.6.0
  * @since 1.0.0
  */
-public abstract class EntityTooltipComponent<C extends InspecioConfig.EntityConfig> implements ConvertibleTooltipData, TooltipComponent {
+public abstract class EntityTooltipComponent<C extends InspecioConfig.EntityConfig> implements InspectioTooltipData, TooltipComponent {
 	protected final MinecraftClient client = MinecraftClient.getInstance();
 	protected final C config;
 
@@ -79,7 +78,7 @@ public abstract class EntityTooltipComponent<C extends InspecioConfig.EntityConf
 		if (Math.max(entity.getWidth(), entity.getHeight()) > 1.0) {
 			size /= Math.max(entity.getWidth(), entity.getHeight());
 		}
-		DiffuseLighting.setupFlatGuiLighting();
+		DiffuseLighting.disableGuiDepthLighting();
 		matrices.push();
 		int yOffset = 16;
 		if (entity instanceof SquidEntity) {
@@ -97,8 +96,8 @@ public abstract class EntityTooltipComponent<C extends InspecioConfig.EntityConf
 		matrices.translate(0, 0, 1000);
 		matrices.scale(size, size, size);
 
-		var quaternion = Axis.Z_POSITIVE.rotationDegrees(180.f);
-		var quaternion2 = Axis.X_POSITIVE.rotationDegrees(-10.f);
+		var quaternion = RotationAxis.POSITIVE_Z.rotationDegrees(180.f);
+		var quaternion2 = RotationAxis.POSITIVE_X.rotationDegrees(-10.f);
 		quaternion.mul(quaternion2);
 		matrices.multiply(quaternion);
 
@@ -125,7 +124,7 @@ public abstract class EntityTooltipComponent<C extends InspecioConfig.EntityConf
 
 		entityRenderDispatcher.setRenderShadows(true);
 		matrices.pop();
-		DiffuseLighting.setup3DGuiLighting();
+		DiffuseLighting.enableGuiDepthLighting();
 	}
 
 	protected void setupAngles(Entity entity, int age, int ageOffset, boolean spin, float defaultYaw) {
@@ -160,7 +159,7 @@ public abstract class EntityTooltipComponent<C extends InspecioConfig.EntityConf
 				pufferfish.setPuffState(config.getPufferFishPuffState());
 			} else if (entity instanceof TropicalFishEntityAccessor tropicalFish) {
 				if (itemNbt.contains("BucketVariantTag", NbtElement.INT_TYPE)) {
-					tropicalFish.invokeSetVariantId(itemNbt.getInt(TropicalFishEntity.BUCKET_VARIANT_TAG_KEY));
+					tropicalFish.invokeSetTropicalFishVariant(itemNbt.getInt(TropicalFishEntity.BUCKET_VARIANT_TAG_KEY));
 				}
 			}
 		}

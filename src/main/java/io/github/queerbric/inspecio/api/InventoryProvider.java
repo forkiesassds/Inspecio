@@ -18,11 +18,12 @@
 package io.github.queerbric.inspecio.api;
 
 import io.github.queerbric.inspecio.InspecioConfig;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DyeColor;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
 
 import java.util.List;
 
@@ -33,7 +34,7 @@ import java.util.List;
  * @version 1.2.0
  * @since 1.2.0
  */
-@ClientOnly
+@Environment(EnvType.CLIENT)
 @FunctionalInterface
 public interface InventoryProvider {
 	/**

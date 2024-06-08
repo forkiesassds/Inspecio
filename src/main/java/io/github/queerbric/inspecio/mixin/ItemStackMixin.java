@@ -20,6 +20,9 @@ package io.github.queerbric.inspecio.mixin;
 import io.github.queerbric.inspecio.Inspecio;
 import io.github.queerbric.inspecio.InspecioConfig;
 import io.github.queerbric.inspecio.tooltip.*;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.client.item.TooltipData;
@@ -30,11 +33,9 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.potion.PotionUtil;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.dynamic.GlobalPos;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.GlobalPos;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
-import org.quiltmc.qsl.tooltip.api.client.TooltipComponentCallback;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -47,7 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@ClientOnly
+@Environment(EnvType.CLIENT)
 @Mixin(ItemStack.class)
 public abstract class ItemStackMixin {
 	@Shadow
@@ -84,7 +85,7 @@ public abstract class ItemStackMixin {
 			var nbt = this.getNbt();
 			assert nbt != null; // Should not be null since hasLodestone returns true.
 
-			GlobalPos globalPos = CompassItem.getLodestonePosition(nbt);
+			GlobalPos globalPos = CompassItem.createLodestonePos(nbt);
 
 			if (globalPos != null) {
 				BlockPos pos = globalPos.getPos();
@@ -129,7 +130,7 @@ public abstract class ItemStackMixin {
 						datas.add(new StatusEffectTooltipComponent(comp.getStatusEffects()));
 					} else if (stack.getItem() instanceof SuspiciousStewItem) {
 						var effects = new ArrayList<StatusEffectInstance>();
-						SuspiciousStewItemAccessor.invokeConsumeStatusEffects(stack, effects::add);
+						SuspiciousStewItemAccessor.invokeForEachEffect(stack, effects::add);
 
 						if (effects.size() != 0) {
 							datas.add(new StatusEffectTooltipComponent(effects, 1.f));

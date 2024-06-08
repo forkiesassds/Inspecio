@@ -21,7 +21,7 @@ import io.github.queerbric.inspecio.Inspecio;
 import io.github.queerbric.inspecio.InspecioConfig;
 import io.github.queerbric.inspecio.JukeboxTooltipMode;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.item.TooltipData;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -51,7 +51,7 @@ public class JukeboxTooltipComponent extends InventoryTooltipComponent {
 
 	public static Optional<TooltipData> of(ItemStack stack) {
 		if (!Inspecio.getConfig().getJukeboxTooltipMode().isEnabled()) return Optional.empty();
-		var nbt = BlockItem.getBlockEntityNbtFromStack(stack);
+		var nbt = BlockItem.getBlockEntityNbt(stack);
 		if (nbt != null && nbt.contains("RecordItem")) {
 			var discStack = ItemStack.fromNbt(nbt.getCompound("RecordItem"));
 			if (discStack.getItem() instanceof MusicDiscItem)
@@ -79,7 +79,7 @@ public class JukeboxTooltipComponent extends InventoryTooltipComponent {
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int x, int y, GuiGraphics graphics) {
+	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
 		if (this.config.getJukeboxTooltipMode() == JukeboxTooltipMode.FANCY)
 			super.drawItems(textRenderer, x, y + 10, graphics);
 	}

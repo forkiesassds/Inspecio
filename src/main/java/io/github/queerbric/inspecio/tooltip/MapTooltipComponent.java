@@ -20,18 +20,17 @@ package io.github.queerbric.inspecio.tooltip;
 import io.github.queerbric.inspecio.Inspecio;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.item.TooltipData;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.FilledMapItem;
 import net.minecraft.item.ItemStack;
-import org.quiltmc.qsl.tooltip.api.ConvertibleTooltipData;
 
 import java.util.Optional;
 
-public class MapTooltipComponent implements ConvertibleTooltipData, TooltipComponent {
+public class MapTooltipComponent implements InspectioTooltipData, TooltipComponent {
 	private final MinecraftClient client = MinecraftClient.getInstance();
 	public int map;
 
@@ -61,7 +60,7 @@ public class MapTooltipComponent implements ConvertibleTooltipData, TooltipCompo
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int x, int y, GuiGraphics graphics) {
+	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
 		var vertices = this.client.getBufferBuilders().getEntityVertexConsumers();
 		var map = this.client.gameRenderer.getMapRenderer();
 		var state = FilledMapItem.getMapState(this.map, this.client.world);
@@ -70,7 +69,7 @@ public class MapTooltipComponent implements ConvertibleTooltipData, TooltipCompo
 		matrices.push();
 		matrices.translate(x, y, 0);
 		matrices.scale(1, 1, 0);
-		map.render(matrices, vertices, this.map, state, !Inspecio.getConfig().getFilledMapConfig().shouldShowPlayerIcon(),
+		map.draw(matrices, vertices, this.map, state, !Inspecio.getConfig().getFilledMapConfig().shouldShowPlayerIcon(),
 				LightmapTextureManager.MAX_LIGHT_COORDINATE);
 		vertices.draw();
 		matrices.pop();

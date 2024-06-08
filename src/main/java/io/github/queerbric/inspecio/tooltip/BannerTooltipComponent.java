@@ -18,16 +18,16 @@
 package io.github.queerbric.inspecio.tooltip;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.lighting.DiffuseLighting;
 import io.github.queerbric.inspecio.Inspecio;
 import net.minecraft.block.entity.BannerBlockEntity;
 import net.minecraft.block.entity.BannerPattern;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.item.TooltipData;
 import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.DiffuseLighting;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.block.entity.BannerBlockEntityRenderer;
@@ -38,11 +38,10 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.DyeColor;
-import org.quiltmc.qsl.tooltip.api.ConvertibleTooltipData;
 
 import java.util.Optional;
 
-public class BannerTooltipComponent implements ConvertibleTooltipData, TooltipComponent {
+public class BannerTooltipComponent implements InspectioTooltipData, TooltipComponent {
 	private final MinecraftClient client = MinecraftClient.getInstance();
 	private final NbtList pattern;
 	private final ModelPart bannerField;
@@ -56,7 +55,7 @@ public class BannerTooltipComponent implements ConvertibleTooltipData, TooltipCo
 		if (!Inspecio.getConfig().hasBannerPattern())
 			return Optional.empty();
 
-		var patternList = Registries.BANNER_PATTERN.getTag(pattern).map(ImmutableList::copyOf).orElse(ImmutableList.of());
+		var patternList = Registries.BANNER_PATTERN.getEntryList(pattern).map(ImmutableList::copyOf).orElse(ImmutableList.of());
 		var patterns = new BannerPattern.Patterns();
 
 		for (var p : patternList) {
@@ -82,8 +81,8 @@ public class BannerTooltipComponent implements ConvertibleTooltipData, TooltipCo
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int x, int y, GuiGraphics graphics) {
-		DiffuseLighting.setupFlatGuiLighting();
+	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
+		DiffuseLighting.disableGuiDepthLighting();
 		MatrixStack matrices = graphics.getMatrices();
 		matrices.push();
 		matrices.translate(x + 8, y + 8, 0);
@@ -100,6 +99,6 @@ public class BannerTooltipComponent implements ConvertibleTooltipData, TooltipCo
 		matrices.pop();
 		immediate.draw();
 		matrices.pop();
-		DiffuseLighting.setup3DGuiLighting();
+		DiffuseLighting.enableGuiDepthLighting();
 	}
 }
