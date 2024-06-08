@@ -23,6 +23,7 @@ import io.github.queerbric.inspecio.tooltip.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback;
+import net.fabricmc.fabric.api.tag.client.v1.ClientTags;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.client.item.TooltipData;
@@ -123,7 +124,7 @@ public abstract class ItemStackMixin {
 			}
 
 			if (config.getEffectsConfig().hasPotions()) {
-				if (stack.isIn(Inspecio.HIDDEN_EFFECTS_TAG)) {
+				if (ClientTags.isInWithLocalFallback(Inspecio.HIDDEN_EFFECTS_TAG, stack.getRegistryEntry())) {
 					datas.add(new StatusEffectTooltipComponent());
 				} else {
 					if (comp.getStatusEffects().size() > 0) {
