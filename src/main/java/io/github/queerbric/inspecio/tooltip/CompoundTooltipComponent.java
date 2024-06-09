@@ -26,7 +26,7 @@ import org.joml.Matrix4f;
 
 import java.util.List;
 
-public class CompoundTooltipComponent implements TooltipComponent, InspectioTooltipData {
+public class CompoundTooltipComponent implements TooltipComponent, InspecioTooltipData {
 	private final List<TooltipComponent> components = Lists.newArrayList();
 
 	public void addComponent(TooltipComponent component) {

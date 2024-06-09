@@ -46,7 +46,7 @@ import net.minecraft.util.math.RotationAxis;
  * @version 1.6.0
  * @since 1.0.0
  */
-public abstract class EntityTooltipComponent<C extends InspecioConfig.EntityConfig> implements InspectioTooltipData, TooltipComponent {
+public abstract class EntityTooltipComponent<C extends InspecioConfig.EntityConfig> implements InspecioTooltipData, TooltipComponent {
 	protected final MinecraftClient client = MinecraftClient.getInstance();
 	protected final C config;
 

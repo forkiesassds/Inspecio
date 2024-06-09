@@ -19,7 +19,7 @@ package io.github.queerbric.inspecio;
 
 import io.github.queerbric.inspecio.api.InspecioEntrypoint;
 import io.github.queerbric.inspecio.api.InventoryProvider;
-import io.github.queerbric.inspecio.tooltip.InspectioTooltipData;
+import io.github.queerbric.inspecio.tooltip.InspecioTooltipData;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback;
@@ -92,7 +92,7 @@ public class Inspecio implements ClientModInitializer {
 
 		ClientCommandRegistrationCallback.EVENT.register(InspecioCommand::register);
 		TooltipComponentCallback.EVENT.register(data -> {
-			if (data instanceof InspectioTooltipData iData)
+			if (data instanceof InspecioTooltipData iData)
 				return iData.toComponent();
 
 			return null;

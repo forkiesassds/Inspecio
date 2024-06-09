@@ -30,7 +30,7 @@ import net.minecraft.item.ItemStack;
 
 import java.util.Optional;
 
-public class MapTooltipComponent implements InspectioTooltipData, TooltipComponent {
+public class MapTooltipComponent implements InspecioTooltipData, TooltipComponent {
 	private final MinecraftClient client = MinecraftClient.getInstance();
 	public int map;
 

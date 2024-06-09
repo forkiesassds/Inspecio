@@ -46,7 +46,7 @@ import java.util.Optional;
  * @since 1.8.0
  */
 @Environment(EnvType.CLIENT)
-public record PaintingTooltipComponent(PaintingVariant painting) implements InspectioTooltipData, TooltipComponent {
+public record PaintingTooltipComponent(PaintingVariant painting) implements InspecioTooltipData, TooltipComponent {
 	public static Optional<TooltipData> of(ItemStack stack) {
 		if (!Inspecio.getConfig().hasPainting())
 			return Optional.empty();

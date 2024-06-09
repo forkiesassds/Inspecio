@@ -27,7 +27,7 @@ import net.minecraft.item.ItemStack;
 
 import java.util.Optional;
 
-public class ArmorTooltipComponent implements InspectioTooltipData, TooltipComponent {
+public class ArmorTooltipComponent implements InspecioTooltipData, TooltipComponent {
 	private final int prot;
 
 	public ArmorTooltipComponent(int prot) {

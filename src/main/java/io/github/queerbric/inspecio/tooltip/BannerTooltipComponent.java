@@ -41,7 +41,7 @@ import net.minecraft.util.DyeColor;
 
 import java.util.Optional;
 
-public class BannerTooltipComponent implements InspectioTooltipData, TooltipComponent {
+public class BannerTooltipComponent implements InspecioTooltipData, TooltipComponent {
 	private final MinecraftClient client = MinecraftClient.getInstance();
 	private final NbtList pattern;
 	private final ModelPart bannerField;

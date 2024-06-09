@@ -40,7 +40,7 @@ import java.util.Optional;
  * @version 1.8.1
  * @since 1.0.0
  */
-public class InventoryTooltipComponent implements InspectioTooltipData, TooltipComponent {
+public class InventoryTooltipComponent implements InspecioTooltipData, TooltipComponent {
 	private static final Identifier STATS_ICONS_TEXTURE = new Identifier("textures/gui/container/stats_icons.png");
 	private final List<ItemStack> inventory;
 	private final int columns;

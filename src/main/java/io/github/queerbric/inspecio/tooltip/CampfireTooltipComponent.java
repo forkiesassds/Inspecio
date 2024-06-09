@@ -39,7 +39,7 @@ import java.util.Optional;
  * @version 1.8.0
  * @since 1.1.0
  */
-public class CampfireTooltipComponent implements InspectioTooltipData, TooltipComponent {
+public class CampfireTooltipComponent implements InspecioTooltipData, TooltipComponent {
 	private static final Identifier ATLAS_TEXTURE = new Identifier("textures/atlas/blocks.png");
 
 	private final DefaultedList<ItemStack> inventory;

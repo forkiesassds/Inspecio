@@ -46,7 +46,7 @@ import java.util.Optional;
  * @since 1.7.0
  */
 @Environment(EnvType.CLIENT)
-public class ChiseledBookshelfTooltipComponent implements InspectioTooltipData, TooltipComponent {
+public class ChiseledBookshelfTooltipComponent implements InspecioTooltipData, TooltipComponent {
 	private static final MinecraftClient CLIENT = MinecraftClient.getInstance();
 	private final BlockState state;
 

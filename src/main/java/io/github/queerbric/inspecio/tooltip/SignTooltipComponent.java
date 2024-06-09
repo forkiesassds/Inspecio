@@ -57,7 +57,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Optional;
 
-public abstract class SignTooltipComponent<M extends Model> implements InspectioTooltipData, TooltipComponent {
+public abstract class SignTooltipComponent<M extends Model> implements InspecioTooltipData, TooltipComponent {
 	protected static final MinecraftClient CLIENT = MinecraftClient.getInstance();
 	private final SignTooltipMode tooltipMode = Inspecio.getConfig().getSignTooltipMode();
 	protected final WoodType type;

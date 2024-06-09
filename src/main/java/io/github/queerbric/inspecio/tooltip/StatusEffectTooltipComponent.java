@@ -41,7 +41,7 @@ import org.joml.Matrix4f;
 
 import java.util.List;
 
-public class StatusEffectTooltipComponent implements InspectioTooltipData, TooltipComponent {
+public class StatusEffectTooltipComponent implements InspecioTooltipData, TooltipComponent {
 	private static final Identifier MYSTERY_TEXTURE = new Identifier(Inspecio.NAMESPACE, "textures/mob_effects/mystery.png");
 	private List<StatusEffectInstance> list = Lists.newArrayList();
 	private final FloatList chances = new FloatArrayList();

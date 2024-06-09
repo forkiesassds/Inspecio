@@ -26,7 +26,7 @@ import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.item.FoodComponent;
 import net.minecraft.util.math.MathHelper;
 
-public record FoodTooltipComponent(int hunger, float saturation) implements InspectioTooltipData, TooltipComponent {
+public record FoodTooltipComponent(int hunger, float saturation) implements InspecioTooltipData, TooltipComponent {
 	public FoodTooltipComponent(FoodComponent component) {
 		this(component.getHunger(), component.getHunger() * component.getSaturationModifier());
 	}
