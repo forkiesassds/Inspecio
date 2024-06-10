@@ -25,8 +25,8 @@ public class CrafterTooltipComponent implements InspecioTooltipData, TooltipComp
     }
 
     public static Optional<TooltipData> of(ItemStack stack) {
-        var config = Inspecio.getConfig().getCrafterConfig();
-        if (!config.isEnabled()) {
+        var config = Inspecio.getConfig().getContainersConfig();
+        if (!config.isCrafterEnabled()) {
             return Optional.empty();
         }
 

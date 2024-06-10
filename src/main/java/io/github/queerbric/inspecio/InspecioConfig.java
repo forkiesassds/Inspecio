@@ -62,7 +62,6 @@ public class InspecioConfig {
 			configEntry(EntitiesConfig.CODEC, "entities", EntitiesConfig::defaultConfig, InspecioConfig::getEntitiesConfig),
 			configEntry(FilledMapConfig.CODEC, "filled_map", FilledMapConfig::defaultConfig, InspecioConfig::getFilledMapConfig),
 			configEntry(FoodConfig.CODEC, "food", FoodConfig::defaultConfig, InspecioConfig::getFoodConfig),
-			configEntry(CrafterConfig.CODEC, "crafter", CrafterConfig::defaultConfig, InspecioConfig::getCrafterConfig),
 			configEntry(JukeboxTooltipMode.CODEC, "jukebox", () -> DEFAULT_JUKEBOX_TOOLTIP_MODE, InspecioConfig::getJukeboxTooltipMode),
 			configEntry(SignTooltipMode.CODEC, "sign", () -> DEFAULT_SIGN_TOOLTIP_MODE, InspecioConfig::getSignTooltipMode),
 			configEntry(AdvancedTooltipsConfig.CODEC, "advanced_tooltips", AdvancedTooltipsConfig::defaultConfig, InspecioConfig::getAdvancedTooltipsConfig)
@@ -90,7 +89,6 @@ public class InspecioConfig {
 	private final EntitiesConfig entitiesConfig;
 	private final FilledMapConfig filledMapConfig;
 	private final FoodConfig foodConfig;
-	private final CrafterConfig crafterConfig;
 	private JukeboxTooltipMode jukeboxTooltipMode;
 	private SignTooltipMode signTooltipMode;
 	private final AdvancedTooltipsConfig advancedTooltipsConfig;
@@ -101,7 +99,6 @@ public class InspecioConfig {
 			EntitiesConfig entitiesConfig,
 			FilledMapConfig filledMapConfig,
 			FoodConfig foodConfig,
-			CrafterConfig crafterConfig,
 			JukeboxTooltipMode jukeboxTooltipMode,
 			SignTooltipMode signTooltipMode,
 			AdvancedTooltipsConfig advancedTooltipsConfig) {
@@ -113,7 +110,6 @@ public class InspecioConfig {
 		this.entitiesConfig = entitiesConfig;
 		this.filledMapConfig = filledMapConfig;
 		this.foodConfig = foodConfig;
-		this.crafterConfig = crafterConfig;
 		this.jukeboxTooltipMode = jukeboxTooltipMode;
 		this.signTooltipMode = signTooltipMode;
 		this.advancedTooltipsConfig = advancedTooltipsConfig;
@@ -163,10 +159,6 @@ public class InspecioConfig {
 		return this.foodConfig;
 	}
 
-	public CrafterConfig getCrafterConfig() {
-		return this.crafterConfig;
-	}
-
 	public JukeboxTooltipMode getJukeboxTooltipMode() {
 		return this.jukeboxTooltipMode;
 	}
@@ -213,9 +205,11 @@ public class InspecioConfig {
 
 	public static class ContainersConfig {
 		public static final boolean DEFAULT_CAMPFIRE = true;
+		public static final boolean DEFAULT_CRAFTER = true;
 
 		public static final Codec<ContainersConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				configEntry("containers/campfire", DEFAULT_CAMPFIRE, ContainersConfig::isCampfireEnabled),
+				configEntry("containers/crafter", DEFAULT_CRAFTER, ContainersConfig::isCrafterEnabled),
 				configEntry(StorageContainerConfig.CODEC, "containers/storage", StorageContainerConfig::defaultConfig, ContainersConfig::getStorageConfig),
 				configEntry(ShulkerBoxConfig.CODEC, "containers/shulker_box", ShulkerBoxConfig::defaultConfig, ContainersConfig::getShulkerBoxConfig),
 				configEntry(ChiseledBookshelfConfig.CODEC, "containers/chiseled_bookshelf",
@@ -223,14 +217,15 @@ public class InspecioConfig {
 				)
 		).apply(instance, ContainersConfig::new));
 
-		private boolean campfire;
+		private boolean campfire, crafter;
 		private final StorageContainerConfig storageContainerConfig;
 		private final ShulkerBoxConfig shulkerBoxConfig;
 		private final ChiseledBookshelfConfig chiseledBookshelfConfig;
 
-		public ContainersConfig(boolean campfire, StorageContainerConfig storageContainerConfig,
+		public ContainersConfig(boolean campfire, boolean crafter, StorageContainerConfig storageContainerConfig,
 				ShulkerBoxConfig shulkerBoxConfig, ChiseledBookshelfConfig chiseledBookshelfConfig) {
 			this.campfire = campfire;
+			this.crafter = crafter;
 			this.storageContainerConfig = storageContainerConfig;
 			this.shulkerBoxConfig = shulkerBoxConfig;
 			this.chiseledBookshelfConfig = chiseledBookshelfConfig;
@@ -242,6 +237,14 @@ public class InspecioConfig {
 
 		public void setCampfire(boolean enabled) {
 			this.campfire = enabled;
+		}
+
+		public boolean isCrafterEnabled() {
+			return this.crafter;
+		}
+
+		public void setCrafter(boolean enabled) {
+			this.crafter = enabled;
 		}
 
 		public StorageContainerConfig getStorageConfig() {
@@ -267,7 +270,7 @@ public class InspecioConfig {
 		}
 
 		public static ContainersConfig defaultConfig() {
-			return new ContainersConfig(DEFAULT_CAMPFIRE, StorageContainerConfig.defaultConfig(),
+			return new ContainersConfig(DEFAULT_CAMPFIRE, DEFAULT_CRAFTER, StorageContainerConfig.defaultConfig(),
 					ShulkerBoxConfig.defaultConfig(), ChiseledBookshelfConfig.defaultConfig());
 		}
 	}
@@ -379,32 +382,6 @@ public class InspecioConfig {
 
 		public static ChiseledBookshelfConfig defaultConfig() {
 			return new ChiseledBookshelfConfig(DEFAULT_ENABLED, DEFAULT_COMPACT, DEFAULT_LOOT_TABLE, DEFAULT_BLOCK_RENDER);
-		}
-	}
-
-	public static class CrafterConfig {
-		public static final boolean DEFAULT_ENABLED = true;
-
-		public static final Codec<CrafterConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-				configEntry("crafter/enabled", DEFAULT_ENABLED, CrafterConfig::isEnabled)
-		).apply(instance, CrafterConfig::new));
-
-		private boolean enabled;
-
-		public CrafterConfig(boolean enabled) {
-			this.enabled = enabled;
-		}
-
-		public boolean isEnabled() {
-			return this.enabled;
-		}
-
-		public void setEnabled(boolean enabled) {
-			this.enabled = enabled;
-		}
-
-		public static CrafterConfig defaultConfig() {
-			return new CrafterConfig(DEFAULT_ENABLED);
 		}
 	}
 
@@ -887,7 +864,6 @@ public class InspecioConfig {
 				EntitiesConfig.defaultConfig(),
 				FilledMapConfig.defaultConfig(),
 				FoodConfig.defaultConfig(),
-				CrafterConfig.defaultConfig(),
 				DEFAULT_JUKEBOX_TOOLTIP_MODE,
 				DEFAULT_SIGN_TOOLTIP_MODE,
 				AdvancedTooltipsConfig.defaultConfig()
