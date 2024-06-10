@@ -98,7 +98,7 @@ public class ChiseledBookshelfTooltipComponent implements InspecioTooltipData, T
 
 	@Override
 	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
-		DiffuseLighting.disableGuiDepthLighting();
+		DiffuseLighting.method_34742();
 		MatrixStack matrices = graphics.getMatrices();
 		matrices.translate(x, y, 0);
 		matrices.scale(-1, -1, 1);
