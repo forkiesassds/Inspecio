@@ -36,6 +36,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.text.Text;
@@ -65,7 +66,6 @@ public class Inspecio implements ClientModInitializer {
 			RegistryKeys.ITEM, new Identifier(NAMESPACE, "hidden_effects")
 	);
 	public static final Random COMMON_RANDOM = new CheckedRandom(System.currentTimeMillis());
-	public static final Identifier GUI_ICONS_TEXTURE = new Identifier("textures/gui/icons.png");
 	private static InspecioConfig config = InspecioConfig.defaultConfig();
 
 	@Override
@@ -225,8 +225,10 @@ public class Inspecio implements ClientModInitializer {
 		if (tag == null) {
 			return null;
 		}
-		if (tag.contains(tagKey, NbtElement.INT_TYPE)) {
-			var effect = StatusEffect.byRawId(tag.getInt(tagKey));
+
+		if (tag.contains(tagKey, NbtElement.STRING_TYPE)) {
+			Identifier id = Identifier.tryParse(tag.getString(tagKey));
+			StatusEffect effect = Registries.STATUS_EFFECT.get(id);
 			if (effect != null)
 				return new StatusEffectInstance(effect, 200, 0);
 		}

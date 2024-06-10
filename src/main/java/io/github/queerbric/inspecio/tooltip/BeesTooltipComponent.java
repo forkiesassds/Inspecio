@@ -46,7 +46,8 @@ import java.util.function.Function;
  * @since 1.0.0
  */
 public class BeesTooltipComponent extends EntityTooltipComponent<InspecioConfig.BeeEntityConfig> {
-	private static final Identifier HONEY_LEVEL_TEXTURE = new Identifier(Inspecio.NAMESPACE, "textures/tooltips/honey_level.png");
+	private static final Identifier HONEY_BAR_TEXTURE = new Identifier(Inspecio.NAMESPACE, "tooltips/honey_bar");
+	private static final Identifier HONEY_LEVEL_TEXTURE = new Identifier(Inspecio.NAMESPACE, "tooltips/honey_level");
 
 	private final List<Bee> bees = new ArrayList<>();
 	private final int honeyLevel;
@@ -134,10 +135,10 @@ public class BeesTooltipComponent extends EntityTooltipComponent<InspecioConfig.
 			matrices.translate(x, y + (this.bees.isEmpty() ? 0 : (this.shouldRenderCustomNames() ? 32 : 24)), 0);
 			matrices.scale(2, 2, 1);
 
-			graphics.drawTexture(HONEY_LEVEL_TEXTURE, 0, 0, 0, 0, 0, 26, 5, 32, 16);
+			graphics.drawGuiTexture(HONEY_BAR_TEXTURE, 0, 0, 26, 5);
 
 			if (honeyLevel != 0) {
-				graphics.drawTexture(HONEY_LEVEL_TEXTURE, 0, 0, 0, 0, 5, Math.min(25, honeyLevel * 5 + 1), 6, 32, 16);
+				graphics.drawGuiTexture(HONEY_LEVEL_TEXTURE, 24, 5, 0, 0, 1, 1, Math.min(24, honeyLevel * 5), 5);
 			}
 		}
 
