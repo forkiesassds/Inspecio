@@ -62,6 +62,7 @@ public class InspecioConfig {
 			configEntry(EntitiesConfig.CODEC, "entities", EntitiesConfig::defaultConfig, InspecioConfig::getEntitiesConfig),
 			configEntry(FilledMapConfig.CODEC, "filled_map", FilledMapConfig::defaultConfig, InspecioConfig::getFilledMapConfig),
 			configEntry(FoodConfig.CODEC, "food", FoodConfig::defaultConfig, InspecioConfig::getFoodConfig),
+			configEntry(CrafterConfig.CODEC, "crafter", CrafterConfig::defaultConfig, InspecioConfig::getCrafterConfig),
 			configEntry(JukeboxTooltipMode.CODEC, "jukebox", () -> DEFAULT_JUKEBOX_TOOLTIP_MODE, InspecioConfig::getJukeboxTooltipMode),
 			configEntry(SignTooltipMode.CODEC, "sign", () -> DEFAULT_SIGN_TOOLTIP_MODE, InspecioConfig::getSignTooltipMode),
 			configEntry(AdvancedTooltipsConfig.CODEC, "advanced_tooltips", AdvancedTooltipsConfig::defaultConfig, InspecioConfig::getAdvancedTooltipsConfig)
@@ -89,6 +90,7 @@ public class InspecioConfig {
 	private final EntitiesConfig entitiesConfig;
 	private final FilledMapConfig filledMapConfig;
 	private final FoodConfig foodConfig;
+	private final CrafterConfig crafterConfig;
 	private JukeboxTooltipMode jukeboxTooltipMode;
 	private SignTooltipMode signTooltipMode;
 	private final AdvancedTooltipsConfig advancedTooltipsConfig;
@@ -99,6 +101,7 @@ public class InspecioConfig {
 			EntitiesConfig entitiesConfig,
 			FilledMapConfig filledMapConfig,
 			FoodConfig foodConfig,
+			CrafterConfig crafterConfig,
 			JukeboxTooltipMode jukeboxTooltipMode,
 			SignTooltipMode signTooltipMode,
 			AdvancedTooltipsConfig advancedTooltipsConfig) {
@@ -110,6 +113,7 @@ public class InspecioConfig {
 		this.entitiesConfig = entitiesConfig;
 		this.filledMapConfig = filledMapConfig;
 		this.foodConfig = foodConfig;
+		this.crafterConfig = crafterConfig;
 		this.jukeboxTooltipMode = jukeboxTooltipMode;
 		this.signTooltipMode = signTooltipMode;
 		this.advancedTooltipsConfig = advancedTooltipsConfig;
@@ -157,6 +161,10 @@ public class InspecioConfig {
 
 	public FoodConfig getFoodConfig() {
 		return this.foodConfig;
+	}
+
+	public CrafterConfig getCrafterConfig() {
+		return this.crafterConfig;
 	}
 
 	public JukeboxTooltipMode getJukeboxTooltipMode() {
@@ -371,6 +379,32 @@ public class InspecioConfig {
 
 		public static ChiseledBookshelfConfig defaultConfig() {
 			return new ChiseledBookshelfConfig(DEFAULT_ENABLED, DEFAULT_COMPACT, DEFAULT_LOOT_TABLE, DEFAULT_BLOCK_RENDER);
+		}
+	}
+
+	public static class CrafterConfig {
+		public static final boolean DEFAULT_ENABLED = true;
+
+		public static final Codec<CrafterConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				configEntry("crafter/enabled", DEFAULT_ENABLED, CrafterConfig::isEnabled)
+		).apply(instance, CrafterConfig::new));
+
+		private boolean enabled;
+
+		public CrafterConfig(boolean enabled) {
+			this.enabled = enabled;
+		}
+
+		public boolean isEnabled() {
+			return this.enabled;
+		}
+
+		public void setEnabled(boolean enabled) {
+			this.enabled = enabled;
+		}
+
+		public static CrafterConfig defaultConfig() {
+			return new CrafterConfig(DEFAULT_ENABLED);
 		}
 	}
 
@@ -853,6 +887,7 @@ public class InspecioConfig {
 				EntitiesConfig.defaultConfig(),
 				FilledMapConfig.defaultConfig(),
 				FoodConfig.defaultConfig(),
+				CrafterConfig.defaultConfig(),
 				DEFAULT_JUKEBOX_TOOLTIP_MODE,
 				DEFAULT_SIGN_TOOLTIP_MODE,
 				AdvancedTooltipsConfig.defaultConfig()

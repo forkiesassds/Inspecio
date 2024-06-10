@@ -23,6 +23,7 @@ import io.github.queerbric.inspecio.HiddenEffectMode;
 import io.github.queerbric.inspecio.Inspecio;
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import it.unimi.dsi.fastutil.floats.FloatList;
+import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -37,11 +38,13 @@ import net.minecraft.entity.effect.StatusEffectUtil;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.world.World;
 import org.joml.Matrix4f;
 
 import java.util.List;
 
 public class StatusEffectTooltipComponent implements InspecioTooltipData, TooltipComponent {
+	private static final MinecraftClient CLIENT = MinecraftClient.getInstance();
 	private static final Identifier MYSTERY_TEXTURE = new Identifier(Inspecio.NAMESPACE, "textures/mob_effects/mystery.png");
 	private List<StatusEffectInstance> list = Lists.newArrayList();
 	private final FloatList chances = new FloatArrayList();
@@ -184,7 +187,9 @@ public class StatusEffectTooltipComponent implements InspecioTooltipData, Toolti
 	}
 
 	private Text getDuration(int index, StatusEffectInstance statusEffect) {
-		var duration = StatusEffectUtil.getDurationText(statusEffect, multiplier);
+		World world = CLIENT.world;
+		Text duration = StatusEffectUtil.getDurationText(statusEffect, multiplier,
+				world == null ? SharedConstants.TICKS_PER_SECOND : world.getTickManager().getTickRate());
 
 		if (this.chances.size() > index && this.chances.getFloat(index) < 1f) {
 			duration = duration.copy().append(" - " + (int) (this.chances.getFloat(index) * 100f) + "%");

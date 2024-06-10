@@ -20,6 +20,7 @@ package io.github.queerbric.inspecio.tooltip;
 import io.github.queerbric.inspecio.Inspecio;
 import io.github.queerbric.inspecio.InspecioConfig;
 import io.github.queerbric.inspecio.mixin.EntityAccessor;
+import net.minecraft.block.spawner.MobSpawnerLogic;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -33,7 +34,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.MobSpawnerLogic;
 import net.minecraft.world.World;
 
 import java.util.Optional;
@@ -112,7 +112,7 @@ public class SpawnEntityTooltipComponent extends EntityTooltipComponent<Inspecio
 		};
 		logic.readNbt(client.world, client.player.getBlockPos(), nbt);
 
-		var entity = logic.getRenderedEntity(client.world, Inspecio.COMMON_RANDOM, client.player.getBlockPos());
+		var entity = logic.getRenderedEntity(client.world, client.player.getBlockPos());
 		if (entity != null) {
 			return Optional.of(new SpawnEntityTooltipComponent(entitiesConfig.getMobSpawnerConfig(), entity));
 		}

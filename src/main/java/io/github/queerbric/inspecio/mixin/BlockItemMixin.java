@@ -90,6 +90,9 @@ public abstract class BlockItemMixin extends Item {
 		} else if (this.getBlock() instanceof ChiseledBookshelfBlock) {
 			var data = ChiseledBookshelfTooltipComponent.of(stack);
 			if (data.isPresent()) return data;
+		} else if (this.getBlock() instanceof CrafterBlock) {
+			var data = CrafterTooltipComponent.of(stack);
+			if (data.isPresent()) return data;
 		} else {
 			InspecioConfig.StorageContainerConfig config = containersConfig.forBlock(this.getBlock());
 			InventoryProvider.Context context = InventoryProvider.searchInventoryContextOf(stack, config);

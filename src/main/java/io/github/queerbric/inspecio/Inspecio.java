@@ -65,7 +65,6 @@ public class Inspecio implements ClientModInitializer {
 	public static final TagKey<Item> HIDDEN_EFFECTS_TAG = TagKey.of(
 			RegistryKeys.ITEM, new Identifier(NAMESPACE, "hidden_effects")
 	);
-	public static final Random COMMON_RANDOM = new CheckedRandom(System.currentTimeMillis());
 	private static InspecioConfig config = InspecioConfig.defaultConfig();
 
 	@Override
