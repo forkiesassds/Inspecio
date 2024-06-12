@@ -14,6 +14,7 @@
     "ItemEntityAccessor",
     "ItemStackMixin",
     "LingeringPotionItemMixin",
+    "PaintingEntityAccessor",
     "PotionItemMixin",
     "SignItemMixin",
     "SpawnEggItemMixin",
@@ -24,8 +25,5 @@
   ],
   "injectors": {
     "defaultRequire": 1
-  },
-  "mixins": [
-    "PaintingEntityAccessor"
-  ]
+  }
 }

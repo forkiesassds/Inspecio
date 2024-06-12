@@ -56,7 +56,7 @@ public class SpawnEntityTooltipComponent extends EntityTooltipComponent<Inspecio
 		var entity = entityType.create(client.world);
 		if (entity != null) {
 			adjustEntity(entity, itemNbt.copyNbt(), entitiesConfig);
-			var itemEntityNbt = itemNbt.getNbt().copy();
+			var itemEntityNbt = itemNbt.copyNbt();
 
 			if (!itemEntityNbt.contains("VillagerData")) {
 				var villagerData = new NbtCompound();
