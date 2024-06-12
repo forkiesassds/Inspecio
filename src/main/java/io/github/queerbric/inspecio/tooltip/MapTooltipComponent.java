@@ -25,6 +25,8 @@ import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.item.TooltipData;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.MapIdComponent;
 import net.minecraft.item.FilledMapItem;
 import net.minecraft.item.ItemStack;
 
@@ -32,15 +34,15 @@ import java.util.Optional;
 
 public class MapTooltipComponent implements InspecioTooltipData, TooltipComponent {
 	private final MinecraftClient client = MinecraftClient.getInstance();
-	public int map;
+	public MapIdComponent map;
 
-	public MapTooltipComponent(int map) {
+	public MapTooltipComponent(MapIdComponent map) {
 		this.map = map;
 	}
 
 	public static Optional<TooltipData> of(ItemStack stack) {
 		if (!Inspecio.getConfig().getFilledMapConfig().isEnabled()) return Optional.empty();
-		var map = FilledMapItem.getMapId(stack);
+		var map = stack.get(DataComponentTypes.MAP_ID);
 		return map == null ? Optional.empty() : Optional.of(new MapTooltipComponent(map));
 	}
 

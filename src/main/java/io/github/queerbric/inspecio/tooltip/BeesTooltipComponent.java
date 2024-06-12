@@ -26,11 +26,10 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.item.TooltipData;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.*;
 import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
@@ -52,18 +51,18 @@ public class BeesTooltipComponent extends EntityTooltipComponent<InspecioConfig.
 	private final List<Bee> bees = new ArrayList<>();
 	private final int honeyLevel;
 
-	public BeesTooltipComponent(InspecioConfig.BeeEntityConfig config, int honeyLevel, NbtList bees) {
+	public BeesTooltipComponent(InspecioConfig.BeeEntityConfig config, int honeyLevel, List<BeehiveBlockEntity.BeeData> bees) {
 		super(config);
 		this.honeyLevel = honeyLevel;
 
-		bees.stream().map(nbt -> (NbtCompound) nbt).forEach(nbt -> {
-			var bee = nbt.getCompound("EntityData");
+		bees.forEach(beeData -> {
+			var bee = beeData.entityData().copyNbt();
 			bee.remove("UUID");
 			bee.remove("Passengers");
 			bee.remove("Leash");
 			var entity = EntityType.loadEntityWithPassengers(bee, this.client.world, Function.identity());
 			if (entity != null) {
-				this.bees.add(new Bee(nbt.getInt("TicksInHive"), entity));
+				this.bees.add(new Bee(beeData.ticksInHive(), entity));
 			}
 		});
 	}
@@ -75,28 +74,20 @@ public class BeesTooltipComponent extends EntityTooltipComponent<InspecioConfig.
 
 		int honeyLevel = 0;
 
-		var stateNbt = stack.getSubNbt(BlockItem.BLOCK_STATE_TAG_KEY);
+		var stateNbt = stack.get(DataComponentTypes.BLOCK_STATE);
 		if (stateNbt != null) {
-			NbtElement honeyLevelNbt = stateNbt.get(BeehiveBlock.HONEY_LEVEL.getName());
+			Integer level = stateNbt.getValue(BeehiveBlock.HONEY_LEVEL);
 
-			if (honeyLevelNbt instanceof NbtInt nbtInt) {
-				honeyLevel = nbtInt.intValue();
-			} else if (honeyLevelNbt instanceof NbtString nbtString) {
-				try {
-					honeyLevel = Integer.parseInt(nbtString.asString());
-				} catch (NumberFormatException e) {
-					// ignored
-				}
-			}
+			if (level != null)
+				honeyLevel = level;
 		}
 
-		var nbt = BlockItem.getBlockEntityNbt(stack);
-		if ((nbt == null || !nbt.contains(BeehiveBlockEntity.BEES_KEY, NbtElement.LIST_TYPE)) && !config.shouldShowHoney())
+		var nbt = stack.get(DataComponentTypes.BEES);
+		if (nbt == null && !config.shouldShowHoney())
 			return Optional.empty();
 
-		var bees = nbt == null || !config.isEnabled() ? new NbtList() : nbt.getList(BeehiveBlockEntity.BEES_KEY, NbtElement.COMPOUND_TYPE);
-		if (!bees.isEmpty() || config.shouldShowHoney())
-			return Optional.of(new BeesTooltipComponent(config, honeyLevel, bees));
+		if (config.shouldShowHoney())
+			return Optional.of(new BeesTooltipComponent(config, honeyLevel, nbt));
 
 		return Optional.empty();
 	}

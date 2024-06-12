@@ -25,9 +25,9 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.item.TooltipData;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.nbt.NbtCompound;
 
 import java.util.Optional;
 
@@ -46,7 +46,7 @@ public class EntityBucketTooltipComponent extends EntityTooltipComponent<Inspeci
 		this.entity = entity;
 	}
 
-	public static Optional<TooltipData> of(EntityType<?> type, NbtCompound itemNbt) {
+	public static Optional<TooltipData> of(EntityType<?> type, NbtComponent itemNbt) {
 		var entitiesConfig = Inspecio.getConfig().getEntitiesConfig();
 		if (!entitiesConfig.getFishBucketConfig().isEnabled())
 			return Optional.empty();
@@ -55,7 +55,7 @@ public class EntityBucketTooltipComponent extends EntityTooltipComponent<Inspeci
 		var entity = type.create(client.world);
 		if (entity != null) {
 			EntityType.loadFromEntityNbt(client.world, null, entity, itemNbt);
-			adjustEntity(entity, itemNbt, entitiesConfig);
+			adjustEntity(entity, itemNbt.copyNbt(), entitiesConfig);
 			return Optional.of(new EntityBucketTooltipComponent(entitiesConfig.getFishBucketConfig(), entity));
 		}
 		return Optional.empty();

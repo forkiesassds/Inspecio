@@ -5,7 +5,8 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.item.TooltipData;
-import net.minecraft.item.BlockItem;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
@@ -30,16 +31,17 @@ public class CrafterTooltipComponent implements InspecioTooltipData, TooltipComp
             return Optional.empty();
         }
 
-        var nbt = BlockItem.getBlockEntityNbt(stack);
-        if (nbt == null)
+        var container = stack.get(DataComponentTypes.CONTAINER);
+        if (container == null)
             return Optional.empty();
 
-
-        var inventory = Inspecio.readInventory(nbt, 9);
+        var inventory = Inspecio.readInventory(container, 9);
         if (inventory == null)
             return Optional.empty();
 
-        int[] disabledSlotArray = nbt.getIntArray("disabled_slots");
+        var nbt = stack.getOrDefault(DataComponentTypes.BLOCK_ENTITY_DATA, NbtComponent.DEFAULT);
+
+        int[] disabledSlotArray = nbt.copyNbt().getIntArray("disabled_slots");
         boolean[] disabledSlots = new boolean[9];
 
         for (int i = 0; i < 9; ++i) {

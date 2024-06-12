@@ -11,7 +11,7 @@ group = project.maven_group
 version = "${project.mod_version}+${getMCVersionString()}"
 archivesBaseName = project.archives_base_name
 
-def targetJavaVersion = 17
+def targetJavaVersion = 21
 
 boolean isMCVersionNonRelease() {
 	return project.minecraft_version.matches('^\\d\\dw\\d\\d[a-z]$')
@@ -142,8 +142,8 @@ curseforge {
 		releaseType = isMCVersionNonRelease() ? "beta" : "release"
 		addGameVersion project.minecraft_version
 		addGameVersion "Fabric"
-		addGameVersion "Java 17"
-		addGameVersion "Java 18"
+		addGameVersion "Java 21"
+		addGameVersion "Java 22"
 
 		// Changelog fetching
 		def changelogContent = fetchChangelog()

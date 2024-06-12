@@ -33,7 +33,7 @@ import net.minecraft.client.render.DiffuseLighting;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.item.BlockItem;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
 
 import java.util.Optional;
@@ -60,7 +60,7 @@ public class ChiseledBookshelfTooltipComponent implements InspecioTooltipData, T
 			return Optional.empty();
 		}
 
-		var nbt = BlockItem.getBlockEntityNbt(stack);
+		var nbt = stack.get(DataComponentTypes.CONTAINER);
 		if (nbt == null)
 			return Optional.empty();
 

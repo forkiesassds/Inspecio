@@ -19,7 +19,6 @@ package io.github.queerbric.inspecio.tooltip;
 
 import com.google.common.collect.ImmutableList;
 import io.github.queerbric.inspecio.Inspecio;
-import net.minecraft.block.entity.BannerBlockEntity;
 import net.minecraft.block.entity.BannerPattern;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -34,35 +33,37 @@ import net.minecraft.client.render.block.entity.BannerBlockEntityRenderer;
 import net.minecraft.client.render.entity.model.EntityModelLayers;
 import net.minecraft.client.render.model.ModelLoader;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.registry.Registries;
+import net.minecraft.component.type.BannerPatternsComponent;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.DyeColor;
 
 import java.util.Optional;
 
 public class BannerTooltipComponent implements InspecioTooltipData, TooltipComponent {
-	private final MinecraftClient client = MinecraftClient.getInstance();
-	private final NbtList pattern;
+	private static final MinecraftClient CLIENT = MinecraftClient.getInstance();
+	private final BannerPatternsComponent pattern;
 	private final ModelPart bannerField;
 
-	private BannerTooltipComponent(NbtList pattern) {
+	private BannerTooltipComponent(BannerPatternsComponent pattern) {
 		this.pattern = pattern;
-		this.bannerField = this.client.getEntityModelLoader().getModelPart(EntityModelLayers.BANNER).getChild("flag");
+		this.bannerField = CLIENT.getEntityModelLoader().getModelPart(EntityModelLayers.BANNER).getChild("flag");
 	}
 
 	public static Optional<TooltipData> of(TagKey<BannerPattern> pattern) {
 		if (!Inspecio.getConfig().hasBannerPattern())
 			return Optional.empty();
 
-		var patternList = Registries.BANNER_PATTERN.getEntryList(pattern).map(ImmutableList::copyOf).orElse(ImmutableList.of());
-		var patterns = new BannerPattern.Patterns();
+        assert CLIENT.world != null;
+        var patternList = CLIENT.world.getRegistryManager().getWrapperOrThrow(RegistryKeys.BANNER_PATTERN)
+				.getOptional(pattern).map(ImmutableList::copyOf).orElse(ImmutableList.of());
+		var patterns = new BannerPatternsComponent.Builder();
 
 		for (var p : patternList) {
 			patterns.add(p, DyeColor.WHITE);
 		}
 
-		return Optional.of(new BannerTooltipComponent(patterns.toNbt()));
+		return Optional.of(new BannerTooltipComponent(patterns.build()));
 	}
 
 	@Override
@@ -90,12 +91,11 @@ public class BannerTooltipComponent implements InspecioTooltipData, TooltipCompo
 		matrices.translate(0.5, 16, 0);
 		matrices.scale(6, -6, 1);
 		matrices.scale(2, -2, -2);
-		var immediate = this.client.getBufferBuilders().getEntityVertexConsumers();
+		var immediate = CLIENT.getBufferBuilders().getEntityVertexConsumers();
 		this.bannerField.pitch = 0.f;
 		this.bannerField.pivotY = -32.f;
-		var list = BannerBlockEntity.getPatternsFromNbt(DyeColor.GRAY, this.pattern);
 		BannerBlockEntityRenderer.renderCanvas(matrices, immediate, LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV,
-				this.bannerField, ModelLoader.BANNER_BASE, true, list);
+				this.bannerField, ModelLoader.BANNER_BASE, true, DyeColor.GRAY, pattern);
 		matrices.pop();
 		immediate.draw();
 		matrices.pop();

@@ -21,6 +21,7 @@ import io.github.queerbric.inspecio.tooltip.EntityBucketTooltipComponent;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.item.TooltipData;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.EntityBucketItem;
 import net.minecraft.item.Item;
@@ -44,6 +45,6 @@ public abstract class EntityBucketItemMixin extends Item {
 
 	@Override
 	public Optional<TooltipData> getTooltipData(ItemStack stack) {
-		return EntityBucketTooltipComponent.of(this.entityType, stack.getOrCreateNbt()).or(() -> super.getTooltipData(stack));
+		return EntityBucketTooltipComponent.of(this.entityType, stack.get(DataComponentTypes.BUCKET_ENTITY_DATA)).or(() -> super.getTooltipData(stack));
 	}
 }

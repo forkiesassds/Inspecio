@@ -35,7 +35,7 @@ import net.minecraft.client.render.block.entity.HangingSignBlockEntityRenderer;
 import net.minecraft.client.render.block.entity.SignBlockEntityRenderer;
 import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.item.BlockItem;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.HangingSignItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SignItem;
@@ -71,14 +71,11 @@ public abstract class SignTooltipComponent<M extends Model> implements InspecioT
 		if (!Inspecio.getConfig().getSignTooltipMode().isEnabled())
 			return Optional.empty();
 
-		if (stack.getItem() instanceof HangingSignItem signItem) {
+		if (stack.getItem() instanceof SignItem signItem) {
 			var block = signItem.getBlock();
-			var nbt = BlockItem.getBlockEntityNbt(stack);
-			if (nbt != null) return Optional.ofNullable(fromTag(AbstractSignBlock.getWoodType(block), nbt, true));
-		} else if (stack.getItem() instanceof SignItem signItem) {
-			var block = signItem.getBlock();
-			var nbt = BlockItem.getBlockEntityNbt(stack);
-			if (nbt != null) return Optional.ofNullable(fromTag(AbstractSignBlock.getWoodType(block), nbt, false));
+			var nbt = stack.get(DataComponentTypes.BLOCK_ENTITY_DATA);
+			if (nbt != null)
+				return Optional.ofNullable(fromTag(AbstractSignBlock.getWoodType(block), nbt.copyNbt(), stack.getItem() instanceof HangingSignItem));
 		}
 		return Optional.empty();
 	}

@@ -18,7 +18,6 @@
 package io.github.queerbric.inspecio.tooltip;
 
 import com.google.common.collect.Lists;
-import com.mojang.datafixers.util.Pair;
 import io.github.queerbric.inspecio.HiddenEffectMode;
 import io.github.queerbric.inspecio.Inspecio;
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
@@ -32,9 +31,11 @@ import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.VertexConsumerProvider.Immediate;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.texture.StatusEffectSpriteManager;
+import net.minecraft.component.type.FoodComponent;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffectUtil;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -51,15 +52,15 @@ public class StatusEffectTooltipComponent implements InspecioTooltipData, Toolti
 	private boolean hidden = false;
 	private float multiplier;
 
-	public StatusEffectTooltipComponent(List<StatusEffectInstance> list, float multiplier) {
-		this.list = list;
+	public StatusEffectTooltipComponent(Iterable<StatusEffectInstance> list, float multiplier) {
+		this.list = (List<StatusEffectInstance>) list;
 		this.multiplier = multiplier;
 	}
 
-	public StatusEffectTooltipComponent(List<Pair<StatusEffectInstance, Float>> list) {
+	public StatusEffectTooltipComponent(List<FoodComponent.StatusEffectEntry> list) {
 		for (var pair : list) {
-			this.list.add(pair.getFirst());
-			this.chances.add(pair.getSecond().floatValue());
+			this.list.add(pair.effect());
+			this.chances.add(pair.probability());
 		}
 		this.multiplier = 1.f;
 	}
@@ -136,7 +137,7 @@ public class StatusEffectTooltipComponent implements InspecioTooltipData, Toolti
 			StatusEffectSpriteManager statusEffectSpriteManager = client.getStatusEffectSpriteManager();
 			for (int i = 0; i < list.size(); i++) {
 				StatusEffectInstance statusEffectInstance = list.get(i);
-				StatusEffect statusEffect = statusEffectInstance.getEffectType();
+				RegistryEntry<StatusEffect> statusEffect = statusEffectInstance.getEffectType();
 				var sprite = statusEffectSpriteManager.getSprite(statusEffect);
 				graphics.drawSprite(x, y + i * 20, 0, 18, 18, sprite);
 			}
@@ -160,7 +161,7 @@ public class StatusEffectTooltipComponent implements InspecioTooltipData, Toolti
 					off += 5;
 				}
 
-				Integer color = statusEffectInstance.getEffectType().getCategory().getFormatting().getColorValue();
+				Integer color = statusEffectInstance.getEffectType().value().getCategory().getFormatting().getColorValue();
 				textRenderer.draw(statusEffectName, x + 24, y + i * 20 + off, color != null ? color : 16777215,
 						true, model, immediate, TextRenderer.TextLayerType.NORMAL, 0, LightmapTextureManager.MAX_LIGHT_COORDINATE);
 				if (statusEffectInstance.getDuration() > 1) {
@@ -177,7 +178,7 @@ public class StatusEffectTooltipComponent implements InspecioTooltipData, Toolti
 	}
 
 	private String getStatusEffectName(StatusEffectInstance statusEffectInstance) {
-		String statusEffectName = I18n.translate(statusEffectInstance.getEffectType().getTranslationKey());
+		String statusEffectName = I18n.translate(statusEffectInstance.getEffectType().value().getTranslationKey());
 
 		if (statusEffectInstance.getAmplifier() >= 1 && statusEffectInstance.getAmplifier() <= 9) {
 			statusEffectName = statusEffectName + ' ' + I18n.translate("enchantment.level." + (statusEffectInstance.getAmplifier() + 1));

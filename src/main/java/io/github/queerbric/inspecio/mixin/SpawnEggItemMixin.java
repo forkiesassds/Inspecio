@@ -21,6 +21,8 @@ import io.github.queerbric.inspecio.tooltip.SpawnEntityTooltipComponent;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.item.TooltipData;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -44,6 +46,6 @@ public class SpawnEggItemMixin extends Item {
 
 	@Override
 	public Optional<TooltipData> getTooltipData(ItemStack stack) {
-		return SpawnEntityTooltipComponent.of(this.type, stack.getOrCreateNbt()).or(() -> super.getTooltipData(stack));
+		return SpawnEntityTooltipComponent.of(this.type, stack.getOrDefault(DataComponentTypes.ENTITY_DATA, NbtComponent.DEFAULT)).or(() -> super.getTooltipData(stack));
 	}
 }

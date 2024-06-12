@@ -21,6 +21,8 @@ import io.github.queerbric.inspecio.tooltip.ArmorStandTooltipComponent;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.item.TooltipData;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.ArmorStandItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -37,6 +39,6 @@ public class ArmorStandItemMixin extends Item {
 
 	@Override
 	public Optional<TooltipData> getTooltipData(ItemStack stack) {
-		return ArmorStandTooltipComponent.of(stack.getOrCreateNbt()).or(() -> super.getTooltipData(stack));
+		return ArmorStandTooltipComponent.of(stack.getOrDefault(DataComponentTypes.ENTITY_DATA, NbtComponent.DEFAULT)).or(() -> super.getTooltipData(stack));
 	}
 }

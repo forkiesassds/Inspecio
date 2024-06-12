@@ -20,12 +20,13 @@ package io.github.queerbric.inspecio.tooltip;
 import io.github.queerbric.inspecio.Inspecio;
 import io.github.queerbric.inspecio.InspecioConfig;
 import io.github.queerbric.inspecio.JukeboxTooltipMode;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.item.TooltipData;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.item.BlockItem;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.MusicDiscItem;
 import net.minecraft.util.collection.DefaultedList;
@@ -41,6 +42,7 @@ import java.util.Optional;
  * @since 1.0.0
  */
 public class JukeboxTooltipComponent extends InventoryTooltipComponent {
+	private static final MinecraftClient CLIENT = MinecraftClient.getInstance();
 	private final InspecioConfig config = Inspecio.getConfig();
 	private final MusicDiscItem disc;
 
@@ -51,11 +53,13 @@ public class JukeboxTooltipComponent extends InventoryTooltipComponent {
 
 	public static Optional<TooltipData> of(ItemStack stack) {
 		if (!Inspecio.getConfig().getJukeboxTooltipMode().isEnabled()) return Optional.empty();
-		var nbt = BlockItem.getBlockEntityNbt(stack);
+		var nbt = stack.get(DataComponentTypes.BLOCK_ENTITY_DATA);
 		if (nbt != null && nbt.contains("RecordItem")) {
-			var discStack = ItemStack.fromNbt(nbt.getCompound("RecordItem"));
-			if (discStack.getItem() instanceof MusicDiscItem)
-				return Optional.of(new JukeboxTooltipComponent(discStack));
+			var nbtC = nbt.copyNbt();
+
+			var discStack = ItemStack.fromNbt(CLIENT.world.getRegistryManager(), nbtC.getCompound("RecordItem"));
+			if (discStack.isPresent() && discStack.get().getItem() instanceof MusicDiscItem)
+				return Optional.of(new JukeboxTooltipComponent(discStack.get()));
 		}
 		return Optional.empty();
 	}

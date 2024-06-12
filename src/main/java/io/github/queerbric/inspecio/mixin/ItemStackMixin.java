@@ -25,18 +25,20 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback;
 import net.fabricmc.fabric.api.tag.client.v1.ClientTags;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
-import net.minecraft.client.item.TooltipContext;
 import net.minecraft.client.item.TooltipData;
+import net.minecraft.client.item.TooltipType;
+import net.minecraft.component.ComponentMap;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.LodestoneTrackerComponent;
+import net.minecraft.component.type.SuspiciousStewEffectsComponent;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.potion.PotionUtil;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.GlobalPos;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -53,24 +55,19 @@ import java.util.Optional;
 @Mixin(ItemStack.class)
 public abstract class ItemStackMixin {
 	@Shadow
-	public abstract int getRepairCost();
-
-	@Shadow
 	public abstract Item getItem();
 
-	@Shadow
-	@Nullable
-	public abstract NbtCompound getNbt();
+	@Shadow public abstract ComponentMap getComponents();
 
 	@Unique
 	private final ThreadLocal<List<Text>> inspecio$tooltipList = new ThreadLocal<>();
 
 	@Inject(
 			method = "getTooltip",
-			at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;hasCustomName()Z"),
+			at = @At(value = "INVOKE", ordinal = 1, target = "Lnet/minecraft/item/ItemStack;contains(Lnet/minecraft/component/DataComponentType;)Z"),
 			locals = LocalCapture.CAPTURE_FAILHARD
 	)
-	private void onGetTooltipBeing(PlayerEntity player, TooltipContext context, CallbackInfoReturnable<List<Text>> cir, List<Text> list) {
+	private void onGetTooltipBeing(Item.TooltipContext context, PlayerEntity player, TooltipType type, CallbackInfoReturnable<List<Text>> cir, List<Text> list, MutableText mutableText) {
 		this.inspecio$tooltipList.set(list);
 	}
 
@@ -78,30 +75,34 @@ public abstract class ItemStackMixin {
 			method = "getTooltip",
 			at = @At(value = "RETURN")
 	)
-	private void onGetTooltip(PlayerEntity player, TooltipContext context, CallbackInfoReturnable<List<Text>> cir) {
+	private void onGetTooltip(Item.TooltipContext context, PlayerEntity player, TooltipType type, CallbackInfoReturnable<List<Text>> cir) {
 		var tooltip = this.inspecio$tooltipList.get();
 		InspecioConfig.AdvancedTooltipsConfig advancedTooltipsConfig = Inspecio.getConfig().getAdvancedTooltipsConfig();
 
-		if (advancedTooltipsConfig.hasLodestoneCoords() && this.getItem() instanceof CompassItem && CompassItem.hasLodestone((ItemStack) (Object) this)) {
-			var nbt = this.getNbt();
+		if (advancedTooltipsConfig.hasLodestoneCoords() && this.getItem() instanceof CompassItem && this.getComponents().contains(DataComponentTypes.LODESTONE_TRACKER)) {
+			var nbt = this.getComponents();
 			assert nbt != null; // Should not be null since hasLodestone returns true.
 
-			GlobalPos globalPos = CompassItem.createLodestonePos(nbt);
+			LodestoneTrackerComponent lodestoneTrackerComponent = nbt.get(DataComponentTypes.LODESTONE_TRACKER);
+            assert lodestoneTrackerComponent != null;
+            Optional<GlobalPos> oGlobalPos = lodestoneTrackerComponent.target();
 
-			if (globalPos != null) {
-				BlockPos pos = globalPos.getPos();
+			if (oGlobalPos.isPresent()) {
+				GlobalPos globalPos = oGlobalPos.get();
+
+				BlockPos pos = globalPos.pos();
 				var posText = Text.literal(String.format("X: %d, Y: %d, Z: %d", pos.getX(), pos.getY(), pos.getZ()))
 						.formatted(Formatting.GOLD);
 
 				tooltip.add(Text.translatable("inspecio.tooltip.lodestone_compass.target", posText).formatted(Formatting.GRAY));
 				tooltip.add(Text.translatable("inspecio.tooltip.lodestone_compass.dimension",
-								Text.literal(globalPos.getDimension().getValue().toString()).formatted(Formatting.GOLD))
+								Text.literal(globalPos.dimension().getValue().toString()).formatted(Formatting.GOLD))
 						.formatted(Formatting.GRAY));
 			}
 		}
 
 		int repairCost;
-		if (advancedTooltipsConfig.hasRepairCost() && (repairCost = this.getRepairCost()) != 0) {
+		if (advancedTooltipsConfig.hasRepairCost() && (repairCost = this.getComponents().get(DataComponentTypes.REPAIR_COST)) != 0) {
 			tooltip.add(Text.translatable("inspecio.tooltip.repair_cost", repairCost)
 					.formatted(Formatting.GRAY));
 		}
@@ -116,28 +117,36 @@ public abstract class ItemStackMixin {
 		var config = Inspecio.getConfig();
 		var stack = (ItemStack) (Object) this;
 
-		if (stack.isFood()) {
-			var comp = stack.getItem().getFoodComponent();
+		if (stack.contains(DataComponentTypes.FOOD)) {
+			var comp = stack.get(DataComponentTypes.FOOD);
 
 			if (config.getFoodConfig().isEnabled()) {
-				datas.add(new FoodTooltipComponent(comp));
+                assert comp != null;
+
+                datas.add(new FoodTooltipComponent(comp));
 			}
 
 			if (config.getEffectsConfig().hasPotions()) {
 				if (ClientTags.isInWithLocalFallback(Inspecio.HIDDEN_EFFECTS_TAG, stack.getRegistryEntry())) {
 					datas.add(new StatusEffectTooltipComponent());
 				} else {
-					if (comp.getStatusEffects().size() > 0) {
-						datas.add(new StatusEffectTooltipComponent(comp.getStatusEffects()));
+                    assert comp != null;
+
+                    if (!comp.effects().isEmpty()) {
+						datas.add(new StatusEffectTooltipComponent(comp.effects()));
 					} else if (stack.getItem() instanceof SuspiciousStewItem) {
 						var effects = new ArrayList<StatusEffectInstance>();
-						SuspiciousStewItemAccessor.invokeForEachEffect(stack, effects::add);
+						SuspiciousStewEffectsComponent suspiciousStewEffectsComponent = stack.getOrDefault(DataComponentTypes.SUSPICIOUS_STEW_EFFECTS, SuspiciousStewEffectsComponent.DEFAULT);
 
-						if (effects.size() != 0) {
+                        for (SuspiciousStewEffectsComponent.StewEffect stewEffect : suspiciousStewEffectsComponent.effects()) {
+							effects.add(stewEffect.createStatusEffectInstance());
+                        }
+
+						if (!effects.isEmpty()) {
 							datas.add(new StatusEffectTooltipComponent(effects, 1.f));
 						}
-					} else {
-						datas.add(new StatusEffectTooltipComponent(PotionUtil.getPotionEffects(stack), 1.f));
+					} else if (stack.contains(DataComponentTypes.POTION_CONTENTS)) {
+						datas.add(new StatusEffectTooltipComponent(stack.get(DataComponentTypes.POTION_CONTENTS).getEffects(), 1.f));
 					}
 				}
 			}
@@ -152,7 +161,7 @@ public abstract class ItemStackMixin {
 		}
 
 		if (datas.size() == 1) {
-			info.setReturnValue(Optional.of(datas.get(0)));
+			info.setReturnValue(Optional.of(datas.getFirst()));
 		} else if (datas.size() > 1) {
 			var comp = new CompoundTooltipComponent();
 			for (var data : datas) {

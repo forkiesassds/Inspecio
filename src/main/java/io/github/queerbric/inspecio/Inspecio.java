@@ -28,9 +28,11 @@ import net.minecraft.block.Block;
 import net.minecraft.block.DispenserBlock;
 import net.minecraft.block.HopperBlock;
 import net.minecraft.block.ShulkerBoxBlock;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ContainerComponent;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.inventory.Inventories;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -38,6 +40,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
@@ -49,6 +52,7 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -75,7 +79,7 @@ public class Inspecio implements ClientModInitializer {
 				if (blockItem.getBlock() instanceof ShulkerBoxBlock shulkerBoxBlock && ((InspecioConfig.ShulkerBoxConfig) config).hasColor())
 					color = shulkerBoxBlock.getColor();
 
-				var nbt = BlockItem.getBlockEntityNbt(stack);
+				var nbt = stack.get(DataComponentTypes.CONTAINER);
 				if (nbt == null) return null;
 
 				var inventory = readInventory(nbt, getInvSizeFor(stack));
@@ -185,8 +189,8 @@ public class Inspecio implements ClientModInitializer {
 	 */
 	public static void appendBlockItemTooltip(ItemStack stack, Block block, List<Text> tooltip) {
 		var config = Inspecio.getConfig().getContainersConfig().forBlock(block);
-		if (config != null && config.hasLootTable()) {
-			var blockEntityNbt = BlockItem.getBlockEntityNbt(stack);
+		if (config != null && config.hasLootTable() && stack.contains(DataComponentTypes.BLOCK_ENTITY_DATA)) {
+			var blockEntityNbt = stack.get(DataComponentTypes.BLOCK_ENTITY_DATA).copyNbt();
 			if (blockEntityNbt != null && blockEntityNbt.contains("LootTable")) {
 				tooltip.add(Text.translatable("inspecio.tooltip.loot_table",
 								Text.literal(blockEntityNbt.getString("LootTable"))
@@ -218,17 +222,19 @@ public class Inspecio implements ClientModInitializer {
 		tooltips.subList(fromIndex, tooltips.size()).clear();
 	}
 
-	public static @Nullable StatusEffectInstance getRawEffectFromTag(NbtCompound tag, String tagKey) {
+	public static @Nullable StatusEffectInstance getRawEffectFromTag(NbtComponent tag, String tagKey) {
 		if (tag == null) {
 			return null;
 		}
 
-		if (tag.contains(tagKey, NbtElement.STRING_TYPE)) {
-			Identifier id = Identifier.tryParse(tag.getString(tagKey));
-			StatusEffect effect = Registries.STATUS_EFFECT.get(id);
-			if (effect != null)
-				return new StatusEffectInstance(effect, 200, 0);
+		NbtCompound tagC = tag.copyNbt();
+		if (tagC.contains(tagKey, NbtElement.STRING_TYPE)) {
+			Identifier id = Identifier.tryParse(tagC.getString(tagKey));
+			Optional<RegistryEntry.Reference<StatusEffect>> effect = Registries.STATUS_EFFECT.getEntry(id);
+			if (effect.isPresent())
+				return new StatusEffectInstance(effect.get(), 200, 0);
 		}
+
 		return null;
 	}
 
@@ -239,9 +245,9 @@ public class Inspecio implements ClientModInitializer {
 	 * @param size the size of the inventory
 	 * @return {@code null} if the inventory is empty, or the inventory otherwise
 	 */
-	public static @Nullable DefaultedList<ItemStack> readInventory(NbtCompound nbt, int size) {
+	public static @Nullable DefaultedList<ItemStack> readInventory(ContainerComponent nbt, int size) {
 		var inventory = DefaultedList.ofSize(size, ItemStack.EMPTY);
-		Inventories.readNbt(nbt, inventory);
+		nbt.copyTo(inventory);
 
 		boolean empty = true;
 		for (var item : inventory) {

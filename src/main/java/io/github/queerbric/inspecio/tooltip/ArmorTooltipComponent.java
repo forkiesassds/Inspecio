@@ -18,10 +18,11 @@
 package io.github.queerbric.inspecio.tooltip;
 
 import io.github.queerbric.inspecio.Inspecio;
-import io.github.queerbric.inspecio.mixin.ItemStackAccessor;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.AttributeModifiersComponent;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
@@ -40,10 +41,10 @@ public class ArmorTooltipComponent implements InspecioTooltipData, TooltipCompon
 
 	public static Optional<ArmorTooltipComponent> of(ItemStack stack) {
 		if (stack.getItem() instanceof ArmorItem armor && Inspecio.getConfig().hasArmor()) {
-			int prot = armor.getMaterial().getProtection(armor.getType());
+			int prot = armor.getMaterial().value().getProtection(armor.getType());
 
-			int hideFlags = ((ItemStackAccessor) (Object) stack).invokeGetHideFlags();
-			if (ItemStackAccessor.invokeIsSectionVisible(hideFlags, ItemStack.TooltipSection.MODIFIERS)) {
+			AttributeModifiersComponent attributeModifiersComponent = stack.getOrDefault(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.DEFAULT);
+			if (attributeModifiersComponent.showInTooltip()) {
 				return Optional.of(new ArmorTooltipComponent(prot));
 			}
 		}

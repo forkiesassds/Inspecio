@@ -20,11 +20,11 @@ package io.github.queerbric.inspecio.mixin;
 import io.github.queerbric.inspecio.Inspecio;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.item.TooltipContext;
+import net.minecraft.client.item.TooltipType;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.LingeringPotionItem;
 import net.minecraft.text.Text;
-import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -37,7 +37,7 @@ import java.util.List;
 public class LingeringPotionItemMixin {
 
 	@Inject(at = @At("HEAD"), method = "appendTooltip", cancellable = true)
-	public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipContext context, CallbackInfo info) {
-		if (Inspecio.getConfig().getEffectsConfig().hasPotions()) info.cancel();
+	public void appendTooltip(ItemStack stack, Item.TooltipContext context, List<Text> tooltip, TooltipType type, CallbackInfo ci) {
+		if (Inspecio.getConfig().getEffectsConfig().hasPotions()) ci.cancel();
 	}
 }

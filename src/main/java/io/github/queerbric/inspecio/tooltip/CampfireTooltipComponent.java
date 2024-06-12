@@ -19,12 +19,13 @@ package io.github.queerbric.inspecio.tooltip;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.queerbric.inspecio.Inspecio;
+import net.minecraft.block.CampfireBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.item.TooltipData;
-import net.minecraft.item.BlockItem;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
@@ -54,7 +55,7 @@ public class CampfireTooltipComponent implements InspecioTooltipData, TooltipCom
 		if (!Inspecio.getConfig().getContainersConfig().isCampfireEnabled())
 			return Optional.empty();
 
-		var nbt = BlockItem.getBlockEntityNbt(stack);
+		var nbt = stack.get(DataComponentTypes.CONTAINER);
 		if (nbt == null)
 			return Optional.empty();
 
@@ -66,9 +67,9 @@ public class CampfireTooltipComponent implements InspecioTooltipData, TooltipCom
 		var itemId = Registries.ITEM.getId(stack.getItem());
 		var fireId = new Identifier(itemId.getNamespace(), "block/" + itemId.getPath() + "_fire");
 
-		var stateNbt = stack.getSubNbt(BlockItem.BLOCK_STATE_TAG_KEY);
-		if (stateNbt != null && stateNbt.contains("lit")) {
-			if (stateNbt.get("lit").asString().equals("false"))
+		var stateNbt = stack.get(DataComponentTypes.BLOCK_STATE);
+		if (stateNbt != null && Boolean.TRUE.equals(stateNbt.getValue(CampfireBlock.LIT))) {
+			if (Boolean.FALSE.equals(stateNbt.getValue(CampfireBlock.LIT)))
 				fireId = null;
 		}
 

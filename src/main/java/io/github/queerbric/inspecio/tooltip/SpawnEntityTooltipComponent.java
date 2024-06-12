@@ -27,9 +27,10 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.item.TooltipData;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
@@ -46,7 +47,7 @@ public class SpawnEntityTooltipComponent extends EntityTooltipComponent<Inspecio
 		this.entity = entity;
 	}
 
-	public static Optional<TooltipData> of(EntityType<?> entityType, NbtCompound itemNbt) {
+	public static Optional<TooltipData> of(EntityType<?> entityType, NbtComponent itemNbt) {
 		var entitiesConfig = Inspecio.getConfig().getEntitiesConfig();
 		if (!entitiesConfig.getSpawnEggConfig().isEnabled() || entityType == null)
 			return Optional.empty();
@@ -54,8 +55,8 @@ public class SpawnEntityTooltipComponent extends EntityTooltipComponent<Inspecio
 		var client = MinecraftClient.getInstance();
 		var entity = entityType.create(client.world);
 		if (entity != null) {
-			adjustEntity(entity, itemNbt, entitiesConfig);
-			var itemEntityNbt = itemNbt.getCompound("EntityTag").copy();
+			adjustEntity(entity, itemNbt.copyNbt(), entitiesConfig);
+			var itemEntityNbt = itemNbt.getNbt().copy();
 
 			if (!itemEntityNbt.contains("VillagerData")) {
 				var villagerData = new NbtCompound();
@@ -77,7 +78,7 @@ public class SpawnEntityTooltipComponent extends EntityTooltipComponent<Inspecio
 						var actualEntity = specifiedEntityType.get().create(client.world);
 						if (actualEntity != null) {
 							entity = actualEntity;
-							adjustEntity(entity, itemNbt, entitiesConfig);
+							adjustEntity(entity, itemNbt.copyNbt(), entitiesConfig);
 						}
 					}
 				}
@@ -99,7 +100,7 @@ public class SpawnEntityTooltipComponent extends EntityTooltipComponent<Inspecio
 		if (!entitiesConfig.getMobSpawnerConfig().isEnabled())
 			return Optional.empty();
 
-		var nbt = BlockItem.getBlockEntityNbt(stack);
+		var nbt = stack.get(DataComponentTypes.BLOCK_ENTITY_DATA);
 		if (nbt == null)
 			return Optional.empty();
 
@@ -110,7 +111,7 @@ public class SpawnEntityTooltipComponent extends EntityTooltipComponent<Inspecio
 			public void sendStatus(World world, BlockPos pos, int eventType) {
 			}
 		};
-		logic.readNbt(client.world, client.player.getBlockPos(), nbt);
+		logic.readNbt(client.world, client.player.getBlockPos(), nbt.copyNbt());
 
 		var entity = logic.getRenderedEntity(client.world, client.player.getBlockPos());
 		if (entity != null) {

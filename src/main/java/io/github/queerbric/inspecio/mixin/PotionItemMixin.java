@@ -21,15 +21,13 @@ import io.github.queerbric.inspecio.Inspecio;
 import io.github.queerbric.inspecio.tooltip.StatusEffectTooltipComponent;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.item.TooltipContext;
 import net.minecraft.client.item.TooltipData;
+import net.minecraft.client.item.TooltipType;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.PotionItem;
-import net.minecraft.potion.PotionUtil;
 import net.minecraft.text.Text;
-import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -50,12 +48,12 @@ public abstract class PotionItemMixin extends Item {
 	}
 
 	@Inject(method = "appendTooltip", at = @At("HEAD"))
-	private void onAppendTooltipPre(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context, CallbackInfo ci) {
+	private void onAppendTooltipPre(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type, CallbackInfo ci) {
 		this.inspecio$oldTooltipLength.set(tooltip.size());
 	}
 
 	@Inject(method = "appendTooltip", at = @At("RETURN"))
-	private void onAppendTooltipPost(ItemStack stack, World world, List<Text> tooltip, TooltipContext context, CallbackInfo info) {
+	private void onAppendTooltipPost(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type, CallbackInfo ci) {
 		if (Inspecio.getConfig().getEffectsConfig().hasPotions()) {
 			Inspecio.removeVanillaTooltips(tooltip, this.inspecio$oldTooltipLength.get());
 		}
@@ -64,6 +62,6 @@ public abstract class PotionItemMixin extends Item {
 	@Override
 	public Optional<TooltipData> getTooltipData(ItemStack stack) {
 		if (!Inspecio.getConfig().getEffectsConfig().hasPotions()) return super.getTooltipData(stack);
-		return Optional.of(new StatusEffectTooltipComponent(PotionUtil.getPotionEffects(stack), 1.f));
+		return Optional.of(new StatusEffectTooltipComponent(stack.get(DataComponentTypes.POTION_CONTENTS).getEffects(), 1.f));
 	}
 }

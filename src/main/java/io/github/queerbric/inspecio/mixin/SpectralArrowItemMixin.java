@@ -25,6 +25,7 @@ import net.minecraft.client.item.TooltipData;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.ArrowItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SpectralArrowItem;
 import org.spongepowered.asm.mixin.Mixin;
@@ -35,7 +36,7 @@ import java.util.Optional;
 @Environment(EnvType.CLIENT)
 @Mixin(SpectralArrowItem.class)
 public class SpectralArrowItemMixin extends ArrowItem {
-	public SpectralArrowItemMixin(Settings settings) {
+	public SpectralArrowItemMixin(Item.Settings settings) {
 		super(settings);
 	}
 

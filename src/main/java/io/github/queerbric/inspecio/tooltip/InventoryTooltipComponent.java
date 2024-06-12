@@ -23,7 +23,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.item.TooltipData;
-import net.minecraft.item.BlockItem;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
@@ -58,7 +58,7 @@ public class InventoryTooltipComponent implements InspecioTooltipData, TooltipCo
 		}
 
 		List<ItemStack> inventory = context.inventory();
-		var blockEntityNbt = BlockItem.getBlockEntityNbt(stack);
+		var blockEntityNbt = stack.get(DataComponentTypes.CONTAINER);
 		if (blockEntityNbt == null)
 			return Optional.empty();
 
@@ -72,7 +72,7 @@ public class InventoryTooltipComponent implements InspecioTooltipData, TooltipCo
 			inventory.forEach(invStack -> {
 				if (invStack.isEmpty())
 					return;
-				compactedInventory.stream().filter(other -> ItemStack.canCombine(other, invStack))
+				compactedInventory.stream().filter(other -> ItemStack.areItemsAndComponentsEqual(other, invStack))
 						.findFirst()
 						.ifPresentOrElse(
 								s -> s.increment(invStack.getCount()),

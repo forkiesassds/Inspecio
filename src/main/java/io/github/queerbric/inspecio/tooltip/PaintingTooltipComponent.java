@@ -19,6 +19,7 @@ package io.github.queerbric.inspecio.tooltip;
 
 import io.github.queerbric.inspecio.Inspecio;
 import io.github.queerbric.inspecio.mixin.DecorationItemAccessor;
+import io.github.queerbric.inspecio.mixin.PaintingEntityAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -28,11 +29,13 @@ import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.item.TooltipData;
 import net.minecraft.client.texture.PaintingManager;
 import net.minecraft.client.texture.Sprite;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.painting.PaintingEntity;
 import net.minecraft.entity.decoration.painting.PaintingVariant;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.entry.RegistryEntry;
 
 import java.util.Optional;
@@ -51,18 +54,20 @@ public record PaintingTooltipComponent(PaintingVariant painting) implements Insp
 		if (!Inspecio.getConfig().hasPainting())
 			return Optional.empty();
 
-		NbtCompound nbt = stack.getNbt();
+		NbtComponent nbt = stack.get(DataComponentTypes.ENTITY_DATA);
 
 		if (nbt != null
 				&& stack.getItem() instanceof DecorationItemAccessor decorationItem
 				&& decorationItem.getEntityType() == EntityType.PAINTING
 		) {
-			var entityNbt = nbt.getCompound("EntityTag");
+			var entityNbt = nbt.copyNbt();
 
 			if (entityNbt != null) {
-				return PaintingEntity.readVariantFromNbt(entityNbt)
-						.map(RegistryEntry::value)
-						.map(PaintingTooltipComponent::new);
+				RegistryEntry<PaintingVariant> registryEntry = PaintingEntity.VARIANT_ENTRY_CODEC.parse(NbtOps.INSTANCE, entityNbt)
+						.result()
+						.orElseGet(PaintingEntityAccessor::invokeGetDefaultVariant);
+
+				return Optional.of(new PaintingTooltipComponent(registryEntry.value()));
 			}
 		}
 

@@ -1,7 +1,7 @@
 {
   "required": true,
   "package": "io.github.queerbric.inspecio.mixin",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_21",
   "client": [
     "ArmorStandItemMixin",
     "BannerPatternItemMixin",
@@ -12,19 +12,20 @@
     "EntityBucketItemMixin",
     "FilledMapItemMixin",
     "ItemEntityAccessor",
-    "ItemStackAccessor",
     "ItemStackMixin",
     "LingeringPotionItemMixin",
     "PotionItemMixin",
     "SignItemMixin",
     "SpawnEggItemMixin",
     "SpectralArrowItemMixin",
-    "SuspiciousStewItemAccessor",
     "TippedArrowItemMixin",
     "TropicalFishEntityAccessor",
     "WitherEntityAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "mixins": [
+    "PaintingEntityAccessor"
+  ]
 }

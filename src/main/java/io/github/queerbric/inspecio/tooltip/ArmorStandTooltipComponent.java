@@ -26,9 +26,9 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.item.TooltipData;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.nbt.NbtCompound;
 
 import java.util.Optional;
 
@@ -47,7 +47,7 @@ public class ArmorStandTooltipComponent extends EntityTooltipComponent<InspecioC
 		this.entity = entity;
 	}
 
-	public static Optional<TooltipData> of(NbtCompound itemNbt) {
+	public static Optional<TooltipData> of(NbtComponent itemNbt) {
 		var entitiesConfig = Inspecio.getConfig().getEntitiesConfig();
 		var entityType = EntityType.ARMOR_STAND;
 		if (!entitiesConfig.getArmorStandConfig().isEnabled())
@@ -55,14 +55,9 @@ public class ArmorStandTooltipComponent extends EntityTooltipComponent<InspecioC
 
 		var client = MinecraftClient.getInstance();
 		var entity = entityType.create(client.world);
-		assert entity != null;
-		adjustEntity(entity, itemNbt, entitiesConfig);
-		var itemEntityNbt = itemNbt.getCompound("EntityTag").copy();
-		var entityTag = entity.writeNbt(new NbtCompound());
-		var uuid = entity.getUuid();
-		entityTag.copyFrom(itemEntityNbt);
-		entity.setUuid(uuid);
-		entity.readNbt(entityTag);
+        assert entity != null;
+
+        itemNbt.applyToEntity(entity);
 		return Optional.of(new ArmorStandTooltipComponent(entitiesConfig.getArmorStandConfig(), entity));
 	}
 

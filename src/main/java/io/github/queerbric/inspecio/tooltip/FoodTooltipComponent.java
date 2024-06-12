@@ -23,7 +23,7 @@ import io.github.queerbric.inspecio.SaturationTooltipMode;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
-import net.minecraft.item.FoodComponent;
+import net.minecraft.component.type.FoodComponent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 
@@ -34,7 +34,7 @@ public record FoodTooltipComponent(int hunger, float saturation) implements Insp
 	private static final Identifier FOOD_OUTLINE_TEXTURE = new Identifier(Inspecio.NAMESPACE, "tooltips/food_outline");
 
 	public FoodTooltipComponent(FoodComponent component) {
-		this(component.getHunger(), component.getHunger() * component.getSaturationModifier());
+		this(component.nutrition(), component.saturation() / 2.0F);
 	}
 
 	private static final int COLUMNS = 16;
@@ -61,7 +61,7 @@ public record FoodTooltipComponent(int hunger, float saturation) implements Insp
 	@Override
 	public int getWidth(TextRenderer textRenderer) {
 		return Math.min(
-				Math.max(this.hunger / 2 * 9, (int) this.saturation * 9),
+				Math.max(this.hunger / 2 * 9, (int) Math.ceil(this.saturation * 9)),
 				COLUMNS * 9
 		);
 	}

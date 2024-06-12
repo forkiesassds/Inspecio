@@ -1,4 +1,6 @@
 {
+  "tag.item.inspecio.hidden_effects": "Hidden Effects",
+
   "inspecio.command.error.unknown_jukebox_tooltip_mode": "Unknown jukebox tooltip mode",
   "inspecio.command.error.unknown_saturation_tooltip_mode": "Unknown saturation tooltip mode",
   "inspecio.command.error.unknown_sign_tooltip_mode": "Unknown sign tooltip mode",
