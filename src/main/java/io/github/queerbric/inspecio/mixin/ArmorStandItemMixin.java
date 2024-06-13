@@ -20,12 +20,12 @@ package io.github.queerbric.inspecio.mixin;
 import io.github.queerbric.inspecio.tooltip.ArmorStandTooltipComponent;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.item.TooltipData;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.ArmorStandItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipData;
 import org.spongepowered.asm.mixin.Mixin;
 
 import java.util.Optional;

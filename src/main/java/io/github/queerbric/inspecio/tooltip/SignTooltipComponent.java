@@ -28,7 +28,6 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
-import net.minecraft.client.item.TooltipData;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.entity.HangingSignBlockEntityRenderer;
@@ -39,6 +38,7 @@ import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.HangingSignItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SignItem;
+import net.minecraft.item.tooltip.TooltipData;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.text.OrderedText;
@@ -287,7 +287,7 @@ public abstract class SignTooltipComponent<M extends Model> implements InspecioT
 	}
 
 	public static class HangingSign extends SignTooltipComponent<HangingSignBlockEntityRenderer.HangingSignModel> {
-		private final Identifier textureId = new Identifier("textures/gui/hanging_signs/" + this.type.name() + ".png");
+		private final Identifier textureId = Identifier.ofVanilla("textures/gui/hanging_signs/" + this.type.name() + ".png");
 
 		public HangingSign(WoodType type, SignText front, SignText back) {
 			super(type, front, back, null);

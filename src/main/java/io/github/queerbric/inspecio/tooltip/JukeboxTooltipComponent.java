@@ -23,12 +23,13 @@ import io.github.queerbric.inspecio.JukeboxTooltipMode;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.item.TooltipData;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.MusicDiscItem;
+import net.minecraft.item.tooltip.TooltipData;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
 import org.joml.Matrix4f;
 
@@ -44,11 +45,14 @@ import java.util.Optional;
 public class JukeboxTooltipComponent extends InventoryTooltipComponent {
 	private static final MinecraftClient CLIENT = MinecraftClient.getInstance();
 	private final InspecioConfig config = Inspecio.getConfig();
-	private final MusicDiscItem disc;
+	private final ItemStack disc;
+	private final RegistryWrapper.WrapperLookup wrapperLookup;
 
 	public JukeboxTooltipComponent(ItemStack discStack) {
 		super(DefaultedList.ofSize(1, discStack), 1, null);
-		this.disc = (MusicDiscItem) discStack.getItem();
+		wrapperLookup = CLIENT.world.getRegistryManager();
+
+		this.disc = discStack;
 	}
 
 	public static Optional<TooltipData> of(ItemStack stack) {
@@ -58,7 +62,7 @@ public class JukeboxTooltipComponent extends InventoryTooltipComponent {
 			var nbtC = nbt.copyNbt();
 
 			var discStack = ItemStack.fromNbt(CLIENT.world.getRegistryManager(), nbtC.getCompound("RecordItem"));
-			if (discStack.isPresent() && discStack.get().getItem() instanceof MusicDiscItem)
+			if (discStack.isPresent() && discStack.get().contains(DataComponentTypes.JUKEBOX_PLAYABLE))
 				return Optional.of(new JukeboxTooltipComponent(discStack.get()));
 		}
 		return Optional.empty();
@@ -74,12 +78,17 @@ public class JukeboxTooltipComponent extends InventoryTooltipComponent {
 
 	@Override
 	public int getWidth(TextRenderer textRenderer) {
-		return textRenderer.getWidth(this.disc.getDescription());
-	}
+		return textRenderer.getWidth(getSongDescription());
+    }
 
 	@Override
 	public void drawText(TextRenderer textRenderer, int x, int y, Matrix4f matrix4f, VertexConsumerProvider.Immediate immediate) {
-		textRenderer.draw(this.disc.getDescription(), x, y, 11184810, true, matrix4f, immediate, TextRenderer.TextLayerType.NORMAL, 0, LightmapTextureManager.MAX_LIGHT_COORDINATE);
+		textRenderer.draw(this.getSongDescription(), x, y, 11184810, true, matrix4f, immediate, TextRenderer.TextLayerType.NORMAL, 0, LightmapTextureManager.MAX_LIGHT_COORDINATE);
+	}
+
+	public Text getSongDescription() {
+		var songEntry = this.disc.get(DataComponentTypes.JUKEBOX_PLAYABLE).song().getEntry(wrapperLookup);
+		return songEntry.map(s -> s.value().description()).orElse(Text.empty());
 	}
 
 	@Override

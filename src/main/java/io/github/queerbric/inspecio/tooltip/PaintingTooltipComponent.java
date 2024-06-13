@@ -19,14 +19,12 @@ package io.github.queerbric.inspecio.tooltip;
 
 import io.github.queerbric.inspecio.Inspecio;
 import io.github.queerbric.inspecio.mixin.DecorationItemAccessor;
-import io.github.queerbric.inspecio.mixin.PaintingEntityAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
-import net.minecraft.client.item.TooltipData;
 import net.minecraft.client.texture.PaintingManager;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.component.DataComponentTypes;
@@ -35,8 +33,9 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.painting.PaintingEntity;
 import net.minecraft.entity.decoration.painting.PaintingVariant;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipData;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.RegistryKeys;
 
 import java.util.Optional;
 
@@ -50,6 +49,8 @@ import java.util.Optional;
  */
 @Environment(EnvType.CLIENT)
 public record PaintingTooltipComponent(PaintingVariant painting) implements InspecioTooltipData, TooltipComponent {
+	private static final MinecraftClient CLIENT = MinecraftClient.getInstance();
+
 	public static Optional<TooltipData> of(ItemStack stack) {
 		if (!Inspecio.getConfig().hasPainting())
 			return Optional.empty();
@@ -60,12 +61,13 @@ public record PaintingTooltipComponent(PaintingVariant painting) implements Insp
 				&& stack.getItem() instanceof DecorationItemAccessor decorationItem
 				&& decorationItem.getEntityType() == EntityType.PAINTING
 		) {
+			var wrapperLookup = CLIENT.world.getRegistryManager();
 			var entityNbt = nbt.copyNbt();
 
 			if (entityNbt != null) {
-				RegistryEntry<PaintingVariant> registryEntry = PaintingEntity.VARIANT_ENTRY_CODEC.parse(NbtOps.INSTANCE, entityNbt)
+				var registryEntry = PaintingEntity.VARIANT_ENTRY_CODEC.parse(wrapperLookup.getOps(NbtOps.INSTANCE), entityNbt)
 						.result()
-						.orElseGet(PaintingEntityAccessor::invokeGetDefaultVariant);
+						.orElse(wrapperLookup.get(RegistryKeys.PAINTING_VARIANT).getDefaultEntry().orElseThrow());
 
 				return Optional.of(new PaintingTooltipComponent(registryEntry.value()));
 			}
@@ -81,12 +83,12 @@ public record PaintingTooltipComponent(PaintingVariant painting) implements Insp
 
 	@Override
 	public int getHeight() {
-		return this.painting.getHeight();
+		return this.painting.height() * 16;
 	}
 
 	@Override
 	public int getWidth(TextRenderer textRenderer) {
-		return this.painting.getWidth();
+		return this.painting.width() * 16;
 	}
 
 	@Override

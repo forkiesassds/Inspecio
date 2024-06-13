@@ -28,10 +28,10 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 
 public record FoodTooltipComponent(int hunger, float saturation) implements InspecioTooltipData, TooltipComponent {
-	private static final Identifier FOOD_EMPTY_TEXTURE = new Identifier("hud/food_empty");
-	private static final Identifier FOOD_HALF_TEXTURE = new Identifier("hud/food_half");
-	private static final Identifier FOOD_FULL_TEXTURE = new Identifier("hud/food_full");
-	private static final Identifier FOOD_OUTLINE_TEXTURE = new Identifier(Inspecio.NAMESPACE, "tooltips/food_outline");
+	private static final Identifier FOOD_EMPTY_TEXTURE = Identifier.ofVanilla("hud/food_empty");
+	private static final Identifier FOOD_HALF_TEXTURE = Identifier.ofVanilla("hud/food_half");
+	private static final Identifier FOOD_FULL_TEXTURE = Identifier.ofVanilla("hud/food_full");
+	private static final Identifier FOOD_OUTLINE_TEXTURE = Identifier.of(Inspecio.NAMESPACE, "tooltips/food_outline");
 
 	public FoodTooltipComponent(FoodComponent component) {
 		this(component.nutrition(), component.saturation() / 2.0F);

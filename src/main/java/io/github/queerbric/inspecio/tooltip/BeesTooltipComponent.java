@@ -24,12 +24,12 @@ import net.minecraft.block.entity.BeehiveBlockEntity;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.item.TooltipData;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipData;
 import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
@@ -45,8 +45,8 @@ import java.util.function.Function;
  * @since 1.0.0
  */
 public class BeesTooltipComponent extends EntityTooltipComponent<InspecioConfig.BeeEntityConfig> {
-	private static final Identifier HONEY_BAR_TEXTURE = new Identifier(Inspecio.NAMESPACE, "tooltips/honey_bar");
-	private static final Identifier HONEY_LEVEL_TEXTURE = new Identifier(Inspecio.NAMESPACE, "tooltips/honey_level");
+	private static final Identifier HONEY_BAR_TEXTURE = Identifier.of(Inspecio.NAMESPACE, "tooltips/honey_bar");
+	private static final Identifier HONEY_LEVEL_TEXTURE = Identifier.of(Inspecio.NAMESPACE, "tooltips/honey_level");
 
 	private final List<Bee> bees = new ArrayList<>();
 	private final int honeyLevel;

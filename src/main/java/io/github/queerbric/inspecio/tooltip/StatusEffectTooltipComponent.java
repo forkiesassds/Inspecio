@@ -46,7 +46,7 @@ import java.util.List;
 
 public class StatusEffectTooltipComponent implements InspecioTooltipData, TooltipComponent {
 	private static final MinecraftClient CLIENT = MinecraftClient.getInstance();
-	private static final Identifier MYSTERY_TEXTURE = new Identifier(Inspecio.NAMESPACE, "textures/mob_effects/mystery.png");
+	private static final Identifier MYSTERY_TEXTURE = Identifier.of(Inspecio.NAMESPACE, "textures/mob_effects/mystery.png");
 	private List<StatusEffectInstance> list = Lists.newArrayList();
 	private final FloatList chances = new FloatArrayList();
 	private boolean hidden = false;

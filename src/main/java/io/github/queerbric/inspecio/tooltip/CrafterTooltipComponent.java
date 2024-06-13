@@ -4,18 +4,18 @@ import io.github.queerbric.inspecio.Inspecio;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
-import net.minecraft.client.item.TooltipData;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipData;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 
 import java.util.Optional;
 
 public class CrafterTooltipComponent implements InspecioTooltipData, TooltipComponent {
-    private static final Identifier CRAFTER_GUI_TEXTURE = new Identifier("textures/gui/container/crafter.png");
-    private static final Identifier DISABLED_SLOT_TEXTURE = new Identifier("container/crafter/disabled_slot");
+    private static final Identifier CRAFTER_GUI_TEXTURE = Identifier.ofVanilla("textures/gui/container/crafter.png");
+    private static final Identifier DISABLED_SLOT_TEXTURE = Identifier.ofVanilla("container/crafter/disabled_slot");
 
     private final DefaultedList<ItemStack> inventory;
     private final boolean[] disabledSlots;

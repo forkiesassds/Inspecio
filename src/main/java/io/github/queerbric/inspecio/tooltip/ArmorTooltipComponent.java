@@ -30,8 +30,8 @@ import net.minecraft.util.Identifier;
 import java.util.Optional;
 
 public class ArmorTooltipComponent implements InspecioTooltipData, TooltipComponent {
-	private static final Identifier ARMOR_FULL_TEXTURE = new Identifier("hud/armor_full");
-	private static final Identifier ARMOR_HALF_TEXTURE = new Identifier("hud/armor_half");
+	private static final Identifier ARMOR_FULL_TEXTURE = Identifier.ofVanilla("hud/armor_full");
+	private static final Identifier ARMOR_HALF_TEXTURE = Identifier.ofVanilla("hud/armor_half");
 
 	private final int prot;
 

@@ -24,9 +24,9 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
-import net.minecraft.client.item.TooltipData;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipData;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
@@ -41,7 +41,7 @@ import java.util.Optional;
  * @since 1.1.0
  */
 public class CampfireTooltipComponent implements InspecioTooltipData, TooltipComponent {
-	private static final Identifier ATLAS_TEXTURE = new Identifier("textures/atlas/blocks.png");
+	private static final Identifier ATLAS_TEXTURE = Identifier.ofVanilla("textures/atlas/blocks.png");
 
 	private final DefaultedList<ItemStack> inventory;
 	private final Identifier fireTexture;
@@ -65,7 +65,7 @@ public class CampfireTooltipComponent implements InspecioTooltipData, TooltipCom
 			return Optional.empty();
 
 		var itemId = Registries.ITEM.getId(stack.getItem());
-		var fireId = new Identifier(itemId.getNamespace(), "block/" + itemId.getPath() + "_fire");
+		var fireId = Identifier.of(itemId.getNamespace(), "block/" + itemId.getPath() + "_fire");
 
 		var stateNbt = stack.get(DataComponentTypes.BLOCK_STATE);
 		if (stateNbt != null && Boolean.TRUE.equals(stateNbt.getValue(CampfireBlock.LIT))) {

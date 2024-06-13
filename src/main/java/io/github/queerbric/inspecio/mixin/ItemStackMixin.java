@@ -25,8 +25,6 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback;
 import net.fabricmc.fabric.api.tag.client.v1.ClientTags;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
-import net.minecraft.client.item.TooltipData;
-import net.minecraft.client.item.TooltipType;
 import net.minecraft.component.ComponentMap;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.LodestoneTrackerComponent;
@@ -34,6 +32,8 @@ import net.minecraft.component.type.SuspiciousStewEffectsComponent;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
+import net.minecraft.item.tooltip.TooltipData;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -64,7 +64,7 @@ public abstract class ItemStackMixin {
 
 	@Inject(
 			method = "getTooltip",
-			at = @At(value = "INVOKE", ordinal = 1, target = "Lnet/minecraft/item/ItemStack;contains(Lnet/minecraft/component/DataComponentType;)Z"),
+			at = @At(value = "INVOKE", ordinal = 1, target = "Lnet/minecraft/item/ItemStack;contains(Lnet/minecraft/component/ComponentType;)Z"),
 			locals = LocalCapture.CAPTURE_FAILHARD
 	)
 	private void onGetTooltipBeing(Item.TooltipContext context, PlayerEntity player, TooltipType type, CallbackInfoReturnable<List<Text>> cir, List<Text> list, MutableText mutableText) {

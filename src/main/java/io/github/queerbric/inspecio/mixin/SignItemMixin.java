@@ -21,11 +21,11 @@ import io.github.queerbric.inspecio.tooltip.SignTooltipComponent;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
-import net.minecraft.client.item.TooltipData;
 import net.minecraft.item.HangingSignItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SignItem;
 import net.minecraft.item.VerticallyAttachableBlockItem;
+import net.minecraft.item.tooltip.TooltipData;
 import net.minecraft.util.math.Direction;
 import org.spongepowered.asm.mixin.Mixin;
 

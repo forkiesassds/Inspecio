@@ -22,11 +22,12 @@ import io.github.queerbric.inspecio.api.InventoryProvider;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
-import net.minecraft.client.item.TooltipData;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipData;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.ColorHelper;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ import java.util.Optional;
  * @since 1.0.0
  */
 public class InventoryTooltipComponent implements InspecioTooltipData, TooltipComponent {
-	private static final Identifier SLOT_TEXTURE = new Identifier("container/slot");
+	private static final Identifier SLOT_TEXTURE = Identifier.ofVanilla("container/slot");
 	private final List<ItemStack> inventory;
 	private final int columns;
 	private final DyeColor color;
@@ -112,7 +113,7 @@ public class InventoryTooltipComponent implements InspecioTooltipData, TooltipCo
 		int lines = this.getColumns();
 
 		for (var stack : this.inventory) {
-			drawSlot(graphics, x + xOffset - 1, y + yOffset - 1, 0, this.color == null ? null : color.getColorComponents());
+			drawSlot(graphics, x + xOffset - 1, y + yOffset - 1, 0, this.color == null ? null : color.getEntityColor());
 			graphics.drawItem(stack, xOffset + x, yOffset + y);
 			graphics.drawItemInSlot(textRenderer, stack, xOffset + x, yOffset + y);
 			x += 18;
@@ -123,10 +124,14 @@ public class InventoryTooltipComponent implements InspecioTooltipData, TooltipCo
 		}
 	}
 
-	public static void drawSlot(DrawContext graphics, int x, int y, int z, float[] color) {
+	public static void drawSlot(DrawContext graphics, int x, int y, int z, Integer color) {
 		if (color == null)
-			color = new float[]{1.f, 1.f, 1.f};
-		RenderSystem.setShaderColor(color[0], color[1], color[2], 1.f);
+			color = 0xFFFFFF;
+		RenderSystem.setShaderColor(
+				ColorHelper.Argb.getRed(color) / 255F,
+				ColorHelper.Argb.getGreen(color) / 255F,
+				ColorHelper.Argb.getBlue(color) / 255F,
+				1.f);
 		graphics.drawGuiTexture(SLOT_TEXTURE, x, y, z, 18, 18);
 		RenderSystem.setShaderColor(1.f, 1.f, 1.f, 1.f);
 	}

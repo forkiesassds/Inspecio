@@ -21,13 +21,13 @@ import io.github.queerbric.inspecio.Inspecio;
 import io.github.queerbric.inspecio.tooltip.StatusEffectTooltipComponent;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.item.TooltipData;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.ArrowItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SpectralArrowItem;
+import net.minecraft.item.tooltip.TooltipData;
 import org.spongepowered.asm.mixin.Mixin;
 
 import java.util.Collections;

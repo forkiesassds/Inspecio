@@ -65,7 +65,7 @@ public class Inspecio implements ClientModInitializer {
 	public static final String NAMESPACE = "inspecio";
 	private static final Logger LOGGER = LogManager.getLogger(NAMESPACE);
 	public static final TagKey<Item> HIDDEN_EFFECTS_TAG = TagKey.of(
-			RegistryKeys.ITEM, new Identifier(NAMESPACE, "hidden_effects")
+			RegistryKeys.ITEM, Identifier.of(NAMESPACE, "hidden_effects")
 	);
 	private static InspecioConfig config = InspecioConfig.defaultConfig();
 

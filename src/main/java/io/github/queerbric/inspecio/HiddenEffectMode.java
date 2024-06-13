@@ -72,7 +72,7 @@ public enum HiddenEffectMode {
 		}
 	};
 
-	private static final Identifier ALT_FONT_ID = new Identifier("minecraft", "alt");
+	private static final Identifier ALT_FONT_ID = Identifier.ofVanilla("alt");
 
 	public static final PrimitiveCodec<HiddenEffectMode> CODEC = new PrimitiveCodec<>() {
 		@Override
