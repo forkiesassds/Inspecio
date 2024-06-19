@@ -53,7 +53,9 @@ public class StatusEffectTooltipComponent implements InspecioTooltipData, Toolti
 	private float multiplier;
 
 	public StatusEffectTooltipComponent(Iterable<StatusEffectInstance> list, float multiplier) {
-		this.list = (List<StatusEffectInstance>) list;
+		for (var instance : list) {
+			this.list.add(instance);
+		}
 		this.multiplier = multiplier;
 	}
 
