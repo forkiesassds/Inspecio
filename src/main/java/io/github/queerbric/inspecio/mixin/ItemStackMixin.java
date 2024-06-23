@@ -117,7 +117,9 @@ public abstract class ItemStackMixin {
 		var config = Inspecio.getConfig();
 		var stack = (ItemStack) (Object) this;
 
-		if (stack.contains(DataComponentTypes.FOOD)) {
+		if (stack.contains(DataComponentTypes.FOOD) &&
+				//Ominous bottles are essentially a food item in a potions clothing.
+				!stack.contains(DataComponentTypes.OMINOUS_BOTTLE_AMPLIFIER)) {
 			var comp = stack.get(DataComponentTypes.FOOD);
 
 			if (config.getFoodConfig().isEnabled()) {
