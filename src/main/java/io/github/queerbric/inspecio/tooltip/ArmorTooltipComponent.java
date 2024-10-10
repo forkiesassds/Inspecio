@@ -21,6 +21,7 @@ import io.github.queerbric.inspecio.Inspecio;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.AttributeModifiersComponent;
 import net.minecraft.item.ArmorItem;
@@ -40,12 +41,21 @@ public class ArmorTooltipComponent implements InspecioTooltipData, TooltipCompon
 	}
 
 	public static Optional<ArmorTooltipComponent> of(ItemStack stack) {
-		if (stack.getItem() instanceof ArmorItem armor && Inspecio.getConfig().hasArmor()) {
-			int prot = armor.getMaterial().value().getProtection(armor.getType());
+		if (stack.contains(DataComponentTypes.ATTRIBUTE_MODIFIERS) && Inspecio.getConfig().hasArmor()) {
+			var comp = stack.get(DataComponentTypes.ATTRIBUTE_MODIFIERS);
+            assert comp != null;
 
-			AttributeModifiersComponent attributeModifiersComponent = stack.getOrDefault(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.DEFAULT);
-			if (attributeModifiersComponent.showInTooltip()) {
-				return Optional.of(new ArmorTooltipComponent(prot));
+            var modifiers = comp.modifiers();
+			for (var modifier : modifiers) {
+				var m = modifier.modifier();
+				if (!m.id().getPath().startsWith("armor."))
+					continue;;
+
+				double prot = m.value();
+
+				if (comp.showInTooltip()) {
+					return Optional.of(new ArmorTooltipComponent((int) prot));
+				}
 			}
 		}
 
@@ -58,7 +68,7 @@ public class ArmorTooltipComponent implements InspecioTooltipData, TooltipCompon
 	}
 
 	@Override
-	public int getHeight() {
+	public int getHeight(TextRenderer textRenderer) {
 		return 11;
 	}
 
@@ -68,12 +78,12 @@ public class ArmorTooltipComponent implements InspecioTooltipData, TooltipCompon
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
+	public void drawItems(TextRenderer textRenderer, int x, int y, int width, int height, DrawContext graphics) {
 		for (int i = 0; i < this.prot / 2; i++) {
-			graphics.drawGuiTexture(ARMOR_FULL_TEXTURE, x + i * 9, y, 0, 9, 9);
+			graphics.drawGuiTexture(RenderLayer::getGuiTextured, ARMOR_FULL_TEXTURE, x + i * 9, y, 9, 9);
 		}
 		if (this.prot % 2 == 1) {
-			graphics.drawGuiTexture(ARMOR_HALF_TEXTURE, x + this.prot / 2 * 9, y, 9, 9);
+			graphics.drawGuiTexture(RenderLayer::getGuiTextured, ARMOR_HALF_TEXTURE, x + this.prot / 2 * 9, y, 9, 9);
 		}
 	}
 }

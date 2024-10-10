@@ -17,6 +17,7 @@
 
 package io.github.queerbric.inspecio.mixin;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import io.github.queerbric.inspecio.Inspecio;
 import io.github.queerbric.inspecio.InspecioConfig;
 import io.github.queerbric.inspecio.tooltip.*;
@@ -26,30 +27,36 @@ import net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback;
 import net.fabricmc.fabric.api.tag.client.v1.ClientTags;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.component.ComponentMap;
+import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.LodestoneTrackerComponent;
 import net.minecraft.component.type.SuspiciousStewEffectsComponent;
 import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
+import net.minecraft.item.consume.ConsumeEffect;
+import net.minecraft.item.tooltip.TooltipAppender;
 import net.minecraft.item.tooltip.TooltipData;
 import net.minecraft.item.tooltip.TooltipType;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.GlobalPos;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
 @Mixin(ItemStack.class)
@@ -59,24 +66,13 @@ public abstract class ItemStackMixin {
 
 	@Shadow public abstract ComponentMap getComponents();
 
-	@Unique
-	private final ThreadLocal<List<Text>> inspecio$tooltipList = new ThreadLocal<>();
+	@Shadow public abstract ItemStack copy();
 
 	@Inject(
 			method = "getTooltip",
-			at = @At(value = "INVOKE", ordinal = 1, target = "Lnet/minecraft/item/ItemStack;contains(Lnet/minecraft/component/ComponentType;)Z"),
-			locals = LocalCapture.CAPTURE_FAILHARD
+			at = @At(value = "INVOKE", target = "Lnet/minecraft/item/tooltip/TooltipType;isAdvanced()Z")
 	)
-	private void onGetTooltipBeing(Item.TooltipContext context, PlayerEntity player, TooltipType type, CallbackInfoReturnable<List<Text>> cir, List<Text> list, MutableText mutableText) {
-		this.inspecio$tooltipList.set(list);
-	}
-
-	@Inject(
-			method = "getTooltip",
-			at = @At(value = "RETURN")
-	)
-	private void onGetTooltip(Item.TooltipContext context, PlayerEntity player, TooltipType type, CallbackInfoReturnable<List<Text>> cir) {
-		var tooltip = this.inspecio$tooltipList.get();
+	private void onGetTooltip(Item.TooltipContext context, PlayerEntity player, TooltipType type, CallbackInfoReturnable<List<Text>> cir, @Local List<Text> tooltip) {
 		InspecioConfig.AdvancedTooltipsConfig advancedTooltipsConfig = Inspecio.getConfig().getAdvancedTooltipsConfig();
 
 		if (advancedTooltipsConfig.hasLodestoneCoords() && this.getItem() instanceof CompassItem && this.getComponents().contains(DataComponentTypes.LODESTONE_TRACKER)) {
@@ -117,9 +113,7 @@ public abstract class ItemStackMixin {
 		var config = Inspecio.getConfig();
 		var stack = (ItemStack) (Object) this;
 
-		if (stack.contains(DataComponentTypes.FOOD) &&
-				//Ominous bottles are essentially a food item in a potions clothing.
-				!stack.contains(DataComponentTypes.OMINOUS_BOTTLE_AMPLIFIER)) {
+		if (stack.contains(DataComponentTypes.FOOD)) {
 			var comp = stack.get(DataComponentTypes.FOOD);
 
 			if (config.getFoodConfig().isEnabled()) {
@@ -134,24 +128,42 @@ public abstract class ItemStackMixin {
 				} else {
                     assert comp != null;
 
-                    if (!comp.effects().isEmpty()) {
-						datas.add(new StatusEffectTooltipComponent(comp.effects()));
-					} else if (stack.getItem() instanceof SuspiciousStewItem) {
-						var effects = new ArrayList<StatusEffectInstance>();
-						SuspiciousStewEffectsComponent suspiciousStewEffectsComponent = stack.getOrDefault(DataComponentTypes.SUSPICIOUS_STEW_EFFECTS, SuspiciousStewEffectsComponent.DEFAULT);
-
-                        for (SuspiciousStewEffectsComponent.StewEffect stewEffect : suspiciousStewEffectsComponent.effects()) {
-							effects.add(stewEffect.createStatusEffectInstance());
-                        }
-
-						if (!effects.isEmpty()) {
-							datas.add(new StatusEffectTooltipComponent(effects, 1.f));
-						}
-					} else if (stack.contains(DataComponentTypes.POTION_CONTENTS)) {
+                    if (stack.contains(DataComponentTypes.POTION_CONTENTS)) {
 						datas.add(new StatusEffectTooltipComponent(stack.get(DataComponentTypes.POTION_CONTENTS).getEffects(), 1.f));
 					}
 				}
 			}
+		}
+
+		if (stack.contains(DataComponentTypes.SUSPICIOUS_STEW_EFFECTS)) {
+			var comp = stack.get(DataComponentTypes.SUSPICIOUS_STEW_EFFECTS);
+            assert comp != null;
+
+			var effects = new ArrayList<StatusEffectInstance>();
+			for (SuspiciousStewEffectsComponent.StewEffect stewEffect : comp.effects()) {
+				effects.add(stewEffect.createStatusEffectInstance());
+			}
+
+			if (!effects.isEmpty()) {
+				datas.add(new StatusEffectTooltipComponent(effects, 1.f));
+			}
+		}
+
+		if (stack.contains(DataComponentTypes.CONSUMABLE)) {
+			var comp = stack.get(DataComponentTypes.CONSUMABLE);
+
+            assert comp != null;
+            if (comp.onConsumeEffects().stream().anyMatch(e -> e.getType() == ConsumeEffect.Type.APPLY_EFFECTS)) {
+				datas.add(new StatusEffectTooltipComponent(comp.onConsumeEffects()));
+			}
+		}
+
+		if (stack.contains(DataComponentTypes.OMINOUS_BOTTLE_AMPLIFIER)) {
+			var comp = stack.get(DataComponentTypes.OMINOUS_BOTTLE_AMPLIFIER);
+
+			assert comp != null;
+			int amplifier = comp.value();
+			datas.add(new StatusEffectTooltipComponent(List.of(new StatusEffectInstance(StatusEffects.BAD_OMEN, 120000, amplifier)), 1.f));
 		}
 
 		if (stack.getItem() instanceof ArmorItem) {
@@ -172,6 +184,26 @@ public abstract class ItemStackMixin {
 					comp.addComponent(component);
 			}
 			info.setReturnValue(Optional.of(comp));
+		}
+	}
+
+	@Inject(
+		method = "appendTooltip",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/item/tooltip/TooltipAppender;appendTooltip(Lnet/minecraft/item/Item$TooltipContext;Ljava/util/function/Consumer;Lnet/minecraft/item/tooltip/TooltipType;)V"
+		),
+		cancellable = true
+	)
+	private <T extends TooltipAppender> void onAppendTooltip(
+			ComponentType<T> componentType, Item.TooltipContext context, Consumer<Text> textConsumer, TooltipType type, CallbackInfo ci
+	) {
+		var config = Inspecio.getConfig();
+		var stack = (ItemStack) (Object) this;
+
+		if (config.getEffectsConfig().hasPotions() && (stack.contains(DataComponentTypes.OMINOUS_BOTTLE_AMPLIFIER) ||
+				stack.contains(DataComponentTypes.SUSPICIOUS_STEW_EFFECTS))) {
+			ci.cancel();
 		}
 	}
 }

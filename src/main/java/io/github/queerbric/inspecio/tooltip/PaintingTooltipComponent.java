@@ -25,6 +25,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.texture.PaintingManager;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.component.DataComponentTypes;
@@ -67,7 +68,7 @@ public record PaintingTooltipComponent(PaintingVariant painting) implements Insp
 			if (entityNbt != null) {
 				var registryEntry = PaintingEntity.VARIANT_ENTRY_CODEC.parse(wrapperLookup.getOps(NbtOps.INSTANCE), entityNbt)
 						.result()
-						.orElse(wrapperLookup.get(RegistryKeys.PAINTING_VARIANT).getDefaultEntry().orElseThrow());
+						.orElse(wrapperLookup.getOrThrow(RegistryKeys.PAINTING_VARIANT).getDefaultEntry().orElseThrow());
 
 				return Optional.of(new PaintingTooltipComponent(registryEntry.value()));
 			}
@@ -82,7 +83,7 @@ public record PaintingTooltipComponent(PaintingVariant painting) implements Insp
 	}
 
 	@Override
-	public int getHeight() {
+	public int getHeight(TextRenderer textRenderer) {
 		return this.painting.height() * 16;
 	}
 
@@ -92,9 +93,9 @@ public record PaintingTooltipComponent(PaintingVariant painting) implements Insp
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
+	public void drawItems(TextRenderer textRenderer, int x, int y, int width, int height, DrawContext graphics) {
 		PaintingManager paintingManager = MinecraftClient.getInstance().getPaintingManager();
 		Sprite sprite = paintingManager.getPaintingSprite(this.painting);
-		graphics.drawSprite(x, y - 2, 0, this.getWidth(textRenderer), this.getHeight(), sprite);
+		graphics.drawGuiTexture(RenderLayer::getGuiTextured, sprite, x, y - 2, this.getWidth(textRenderer), this.getHeight(textRenderer));
 	}
 }

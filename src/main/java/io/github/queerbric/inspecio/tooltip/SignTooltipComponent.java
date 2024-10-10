@@ -140,7 +140,7 @@ public abstract class SignTooltipComponent<M extends Model> implements InspecioT
 	}
 
 	@Override
-	public int getHeight() {
+	public int getHeight(TextRenderer textRenderer) {
 		if (this.tooltipMode == SignTooltipMode.FANCY)
 			return this.getFancyHeight();
 		return this.getMessages().length * 10;
@@ -205,7 +205,7 @@ public abstract class SignTooltipComponent<M extends Model> implements InspecioT
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
+	public void drawItems(TextRenderer textRenderer, int x, int y, int width, int height, DrawContext graphics) {
 		if (this.tooltipMode != SignTooltipMode.FANCY)
 			return;
 
@@ -245,10 +245,10 @@ public abstract class SignTooltipComponent<M extends Model> implements InspecioT
 	 */
 	protected abstract int getTextOffset();
 
-	public static class Sign extends SignTooltipComponent<SignBlockEntityRenderer.SignModel> {
+	public static class Sign extends SignTooltipComponent<Model> {
 
 		public Sign(WoodType type, SignText front, SignText back) {
-			super(type, front, back, SignBlockEntityRenderer.createSignModel(CLIENT.getEntityModelLoader(), type));
+			super(type, front, back, SignBlockEntityRenderer.createSignModel(CLIENT.getEntityModelLoader(), type, false));
 		}
 
 		@Override
@@ -275,9 +275,7 @@ public abstract class SignTooltipComponent<M extends Model> implements InspecioT
 			}
 
 			graphics.getMatrices().scale(65, 65, -65);
-			this.model.stick.visible = false;
-			this.model.root.visible = true;
-			this.model.root.render(graphics.getMatrices(), vertexConsumer, LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV);
+			this.model.render(graphics.getMatrices(), vertexConsumer, LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV);
 		}
 
 		@Override
@@ -313,7 +311,7 @@ public abstract class SignTooltipComponent<M extends Model> implements InspecioT
 			graphics.getMatrices().translate(44.5, 32, 0);
 			RenderSystem.setShaderColor(1.f, 1.f, 1.f, 1.f);
 			graphics.getMatrices().scale(4.f, 4.f, 1.f);
-			graphics.drawTexture(this.textureId, -8, -8, 0.f, 0.f, 16, 16, 16, 16);
+			graphics.drawTexture(RenderLayer::getGuiTextured, this.textureId, -8, -8, 0.f, 0.f, 16, 16, 16, 16);
 		}
 
 		@Override

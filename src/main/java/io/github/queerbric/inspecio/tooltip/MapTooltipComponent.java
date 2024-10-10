@@ -23,6 +23,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.render.LightmapTextureManager;
+import net.minecraft.client.render.MapRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.MapIdComponent;
@@ -35,6 +36,7 @@ import java.util.Optional;
 public class MapTooltipComponent implements InspecioTooltipData, TooltipComponent {
 	private final MinecraftClient client = MinecraftClient.getInstance();
 	public MapIdComponent map;
+	private final MapRenderState mapRenderState = new MapRenderState();
 
 	public MapTooltipComponent(MapIdComponent map) {
 		this.map = map;
@@ -52,7 +54,7 @@ public class MapTooltipComponent implements InspecioTooltipData, TooltipComponen
 	}
 
 	@Override
-	public int getHeight() {
+	public int getHeight(TextRenderer textRenderer) {
 		return 128 + 2;
 	}
 
@@ -62,16 +64,17 @@ public class MapTooltipComponent implements InspecioTooltipData, TooltipComponen
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
+	public void drawItems(TextRenderer textRenderer, int x, int y, int width, int height, DrawContext graphics) {
 		var vertices = this.client.getBufferBuilders().getEntityVertexConsumers();
-		var map = this.client.gameRenderer.getMapRenderer();
+		var map = this.client.getMapRenderer();
 		var state = FilledMapItem.getMapState(this.map, this.client.world);
 		if (state == null) return;
 		MatrixStack matrices = graphics.getMatrices();
 		matrices.push();
 		matrices.translate(x, y, 0);
 		matrices.scale(1, 1, 0);
-		map.draw(matrices, vertices, this.map, state, !Inspecio.getConfig().getFilledMapConfig().shouldShowPlayerIcon(),
+		map.update(this.map, state, this.mapRenderState);
+		map.draw(mapRenderState, matrices, vertices, !Inspecio.getConfig().getFilledMapConfig().shouldShowPlayerIcon(),
 				LightmapTextureManager.MAX_LIGHT_COORDINATE);
 		vertices.draw();
 		matrices.pop();

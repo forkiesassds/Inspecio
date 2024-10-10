@@ -27,6 +27,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.item.tooltip.TooltipData;
 
 import java.util.Optional;
@@ -52,7 +53,7 @@ public class EntityBucketTooltipComponent extends EntityTooltipComponent<Inspeci
 			return Optional.empty();
 
 		var client = MinecraftClient.getInstance();
-		var entity = type.create(client.world);
+		var entity = type.create(client.world, SpawnReason.LOAD);
 		if (entity != null) {
 			EntityType.loadFromEntityNbt(client.world, null, entity, itemNbt);
 			adjustEntity(entity, itemNbt.copyNbt(), entitiesConfig);
@@ -62,7 +63,7 @@ public class EntityBucketTooltipComponent extends EntityTooltipComponent<Inspeci
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
+	public void drawItems(TextRenderer textRenderer, int x, int y, int width, int height, DrawContext graphics) {
 		if (this.shouldRender()) {
 			MatrixStack matrices = graphics.getMatrices();
 			matrices.push();

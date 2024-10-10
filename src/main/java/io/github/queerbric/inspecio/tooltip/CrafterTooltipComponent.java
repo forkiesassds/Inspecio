@@ -4,6 +4,7 @@ import io.github.queerbric.inspecio.Inspecio;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.ItemStack;
@@ -67,7 +68,7 @@ public class CrafterTooltipComponent implements InspecioTooltipData, TooltipComp
     }
 
     @Override
-    public int getHeight() {
+    public int getHeight(TextRenderer textRenderer) {
         return 18 * 3 + 3;
     }
 
@@ -77,20 +78,20 @@ public class CrafterTooltipComponent implements InspecioTooltipData, TooltipComp
     }
 
     @Override
-    public void drawItems(TextRenderer textRenderer, int xOffset, int yOffset, DrawContext graphics) {
+    public void drawItems(TextRenderer textRenderer, int xOffset, int yOffset, int width, int height, DrawContext graphics) {
         int x = 1;
         int y = 1;
 
         int slot = 0;
 
-        graphics.drawTexture(CRAFTER_GUI_TEXTURE, xOffset, yOffset, 25, 16, 54, 54, 256, 256);
+        graphics.drawTexture(RenderLayer::getGuiTextured, CRAFTER_GUI_TEXTURE, xOffset, yOffset, 25, 16, 54, 54, 256, 256);
 
         for (var stack : this.inventory) {
             if (disabledSlots[slot])
-                drawDisabledSlot(graphics, x + xOffset - 1, y + yOffset - 1, 0);
+                drawDisabledSlot(graphics, x + xOffset - 1, y + yOffset - 1);
 
             graphics.drawItem(stack, xOffset + x, yOffset + y);
-            graphics.drawItemInSlot(textRenderer, stack, xOffset + x, yOffset + y);
+            graphics.drawStackOverlay(textRenderer, stack, xOffset + x, yOffset + y);
             x += 18;
             if (x >= 18 * 3) {
                 x = 1;
@@ -101,7 +102,7 @@ public class CrafterTooltipComponent implements InspecioTooltipData, TooltipComp
         }
     }
 
-    public static void drawDisabledSlot(DrawContext graphics, int x, int y, int z) {
-        graphics.drawGuiTexture(DISABLED_SLOT_TEXTURE, x, y, z, 18, 18);
+    public static void drawDisabledSlot(DrawContext graphics, int x, int y) {
+        graphics.drawGuiTexture(RenderLayer::getGuiTextured, DISABLED_SLOT_TEXTURE, x, y, 18, 18);
     }
 }

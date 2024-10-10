@@ -1,0 +1,4 @@
+accessWidener v2 named
+
+accessible method net/minecraft/client/gui/DrawContext drawSprite (Ljava/util/function/Function;Lnet/minecraft/client/texture/Sprite;IIIIIIIII)V
+accessible field net/minecraft/client/gui/DrawContext guiAtlasManager Lnet/minecraft/client/texture/GuiAtlasManager;

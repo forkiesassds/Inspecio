@@ -24,10 +24,12 @@ import net.minecraft.block.entity.BeehiveBlockEntity;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.tooltip.TooltipData;
 import net.minecraft.util.Identifier;
@@ -60,7 +62,7 @@ public class BeesTooltipComponent extends EntityTooltipComponent<InspecioConfig.
 			bee.remove("UUID");
 			bee.remove("Passengers");
 			bee.remove("Leash");
-			var entity = EntityType.loadEntityWithPassengers(bee, this.client.world, Function.identity());
+			var entity = EntityType.loadEntityWithPassengers(bee, this.client.world, SpawnReason.LOAD, Function.identity());
 			if (entity != null) {
 				this.bees.add(new Bee(beeData.ticksInHive(), entity));
 			}
@@ -93,7 +95,7 @@ public class BeesTooltipComponent extends EntityTooltipComponent<InspecioConfig.
 	}
 
 	@Override
-	public int getHeight() {
+	public int getHeight(TextRenderer textRenderer) {
 		if (this.bees.isEmpty()) {
 			return this.config.shouldShowHoney() ? 12 : 0;
 		} else {
@@ -107,7 +109,7 @@ public class BeesTooltipComponent extends EntityTooltipComponent<InspecioConfig.
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
+	public void drawItems(TextRenderer textRenderer, int x, int y, int width, int height, DrawContext graphics) {
 		MatrixStack matrices = graphics.getMatrices();
 		matrices.push();
 
@@ -126,10 +128,10 @@ public class BeesTooltipComponent extends EntityTooltipComponent<InspecioConfig.
 			matrices.translate(x, y + (this.bees.isEmpty() ? 0 : (this.shouldRenderCustomNames() ? 32 : 24)), 0);
 			matrices.scale(2, 2, 1);
 
-			graphics.drawGuiTexture(HONEY_BAR_TEXTURE, 0, 0, 26, 5);
+			graphics.drawGuiTexture(RenderLayer::getGuiTextured, HONEY_BAR_TEXTURE, 0, 0, 26, 5);
 
 			if (honeyLevel != 0) {
-				graphics.drawGuiTexture(HONEY_LEVEL_TEXTURE, 24, 5, 0, 0, 1, 1, Math.min(24, honeyLevel * 5), 5);
+				graphics.drawGuiTexture(RenderLayer::getGuiTextured, HONEY_LEVEL_TEXTURE, 24, 5, 0, 0, 1, 1, Math.min(24, honeyLevel * 5), 5);
 			}
 		}
 

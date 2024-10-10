@@ -60,7 +60,7 @@ public abstract class EntityTooltipComponent<C extends InspecioConfig.EntityConf
 	}
 
 	@Override
-	public int getHeight() {
+	public int getHeight(TextRenderer textRenderer) {
 		return !this.shouldRender() ? 0 : (this.shouldRenderCustomNames() ? 32 : 24);
 	}
 
@@ -117,7 +117,7 @@ public abstract class EntityTooltipComponent<C extends InspecioConfig.EntityConf
 		var immediate = this.client.getBufferBuilders().getEntityVertexConsumers();
 		entity.setCustomNameVisible(allowCustomName && entity.hasCustomName() && (this.config.shouldAlwaysShowName() || Screen.hasControlDown()));
 
-		entityRenderDispatcher.render(entity, 0, 0, 0, 0.f, 1.f, matrices, immediate,
+		entityRenderDispatcher.render(entity, 0, 0, 0, 1.f, matrices, immediate,
 				LightmapTextureManager.MAX_LIGHT_COORDINATE
 		);
 		immediate.draw();

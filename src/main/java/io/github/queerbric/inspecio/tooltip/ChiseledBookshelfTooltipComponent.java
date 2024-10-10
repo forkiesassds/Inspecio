@@ -87,7 +87,7 @@ public class ChiseledBookshelfTooltipComponent implements InspecioTooltipData, T
 	}
 
 	@Override
-	public int getHeight() {
+	public int getHeight(TextRenderer textRenderer) {
 		return 24;
 	}
 
@@ -97,7 +97,7 @@ public class ChiseledBookshelfTooltipComponent implements InspecioTooltipData, T
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
+	public void drawItems(TextRenderer textRenderer, int x, int y, int width, int height, DrawContext graphics) {
 		DiffuseLighting.method_34742();
 		MatrixStack matrices = graphics.getMatrices();
 		matrices.translate(x, y, 0);

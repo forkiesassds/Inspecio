@@ -30,7 +30,7 @@ import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.block.entity.BannerBlockEntityRenderer;
 import net.minecraft.client.render.entity.model.EntityModelLayers;
-import net.minecraft.client.render.model.ModelLoader;
+import net.minecraft.client.render.model.ModelBaker;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.component.type.BannerPatternsComponent;
 import net.minecraft.item.tooltip.TooltipData;
@@ -55,7 +55,7 @@ public class BannerTooltipComponent implements InspecioTooltipData, TooltipCompo
 			return Optional.empty();
 
         assert CLIENT.world != null;
-        var patternList = CLIENT.world.getRegistryManager().getWrapperOrThrow(RegistryKeys.BANNER_PATTERN)
+        var patternList = CLIENT.world.getRegistryManager().getOrThrow(RegistryKeys.BANNER_PATTERN)
 				.getOptional(pattern).map(ImmutableList::copyOf).orElse(ImmutableList.of());
 		var patterns = new BannerPatternsComponent.Builder();
 
@@ -72,7 +72,7 @@ public class BannerTooltipComponent implements InspecioTooltipData, TooltipCompo
 	}
 
 	@Override
-	public int getHeight() {
+	public int getHeight(TextRenderer textRenderer) {
 		return 32;
 	}
 
@@ -82,9 +82,9 @@ public class BannerTooltipComponent implements InspecioTooltipData, TooltipCompo
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
+	public void drawItems(TextRenderer textRenderer, int x, int y, int width, int height, DrawContext context) {
 		DiffuseLighting.disableGuiDepthLighting();
-		MatrixStack matrices = graphics.getMatrices();
+		MatrixStack matrices = context.getMatrices();
 		matrices.push();
 		matrices.translate(x + 8, y + 8, 0);
 		matrices.push();
@@ -95,7 +95,7 @@ public class BannerTooltipComponent implements InspecioTooltipData, TooltipCompo
 		this.bannerField.pitch = 0.f;
 		this.bannerField.pivotY = -32.f;
 		BannerBlockEntityRenderer.renderCanvas(matrices, immediate, LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV,
-				this.bannerField, ModelLoader.BANNER_BASE, true, DyeColor.GRAY, pattern);
+				this.bannerField, ModelBaker.BANNER_BASE, true, DyeColor.GRAY, pattern);
 		matrices.pop();
 		immediate.draw();
 		matrices.pop();

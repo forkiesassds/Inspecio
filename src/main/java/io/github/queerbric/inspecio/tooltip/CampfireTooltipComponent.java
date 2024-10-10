@@ -24,6 +24,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.tooltip.TooltipData;
@@ -82,7 +83,7 @@ public class CampfireTooltipComponent implements InspecioTooltipData, TooltipCom
 	}
 
 	@Override
-	public int getHeight() {
+	public int getHeight(TextRenderer textRenderer) {
 		return 3 * 18 + 2;
 	}
 
@@ -92,16 +93,16 @@ public class CampfireTooltipComponent implements InspecioTooltipData, TooltipCom
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int xOffset, int yOffset, DrawContext graphics) {
+	public void drawItems(TextRenderer textRenderer, int xOffset, int yOffset, int width, int height, DrawContext graphics) {
 		int x = 1 + 18 * 2;
 		int y = 1 + 18 * 2;
 
 		for (int i = 0; i < this.inventory.size(); i++) {
 			var stack = this.inventory.get(i);
 
-			InventoryTooltipComponent.drawSlot(graphics, x + xOffset - 1, y + yOffset - 1, 0, null);
+			InventoryTooltipComponent.drawSlot(graphics, x + xOffset - 1, y + yOffset - 1, null);
 			graphics.drawItem(stack, xOffset + x, yOffset + y);
-			graphics.drawItemInSlot(textRenderer, stack, xOffset + x, yOffset + y);
+			graphics.drawStackOverlay(textRenderer, stack, xOffset + x, yOffset + y);
 
 			if (i == 1)
 				y -= 18 * 2;
@@ -116,7 +117,7 @@ public class CampfireTooltipComponent implements InspecioTooltipData, TooltipCom
 
 			var sprite = MinecraftClient.getInstance().getSpriteAtlas(ATLAS_TEXTURE).apply(this.fireTexture);
 			if (sprite != null)
-				graphics.drawSprite(xOffset + 19, yOffset + 19, 0, 16, 16, sprite);
+				graphics.drawGuiTexture(RenderLayer::getGuiTextured, sprite, xOffset + 19, yOffset + 19, 16, 16);
 		}
 	}
 }

@@ -34,8 +34,8 @@ import java.util.Optional;
 @Environment(EnvType.CLIENT)
 @Mixin(value = {SignItem.class, HangingSignItem.class})
 public class SignItemMixin extends VerticallyAttachableBlockItem {
-	public SignItemMixin(Block standingBlock, Block wallBlock, Settings settings, Direction direction) {
-		super(standingBlock, wallBlock, settings, direction);
+	public SignItemMixin(Block standingBlock, Block wallBlock, Direction direction, Settings settings) {
+		super(standingBlock, wallBlock, direction, settings);
 	}
 
 	@Override

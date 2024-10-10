@@ -14,7 +14,6 @@
     "ItemEntityAccessor",
     "ItemStackMixin",
     "LingeringPotionItemMixin",
-    "OminousBottleItemMixin",
     "PotionItemMixin",
     "SignItemMixin",
     "SpawnEggItemMixin",

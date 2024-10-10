@@ -30,6 +30,7 @@ import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.tooltip.TooltipData;
 import net.minecraft.nbt.NbtCompound;
@@ -53,7 +54,7 @@ public class SpawnEntityTooltipComponent extends EntityTooltipComponent<Inspecio
 			return Optional.empty();
 
 		var client = MinecraftClient.getInstance();
-		var entity = entityType.create(client.world);
+		var entity = entityType.create(client.world, SpawnReason.LOAD);
 		if (entity != null) {
 			adjustEntity(entity, itemNbt.copyNbt(), entitiesConfig);
 			var itemEntityNbt = itemNbt.copyNbt();
@@ -75,7 +76,7 @@ public class SpawnEntityTooltipComponent extends EntityTooltipComponent<Inspecio
 					itemEntityNbt.putString(Entity.ID_KEY, id);
 					Optional<EntityType<?>> specifiedEntityType = EntityType.fromNbt(itemEntityNbt);
 					if (specifiedEntityType.isPresent()) {
-						var actualEntity = specifiedEntityType.get().create(client.world);
+						var actualEntity = specifiedEntityType.get().create(client.world, SpawnReason.LOAD);
 						if (actualEntity != null) {
 							entity = actualEntity;
 							adjustEntity(entity, itemNbt.copyNbt(), entitiesConfig);
@@ -122,8 +123,8 @@ public class SpawnEntityTooltipComponent extends EntityTooltipComponent<Inspecio
 	}
 
 	@Override
-	public int getHeight() {
-		return super.getHeight() + 36;
+	public int getHeight(TextRenderer textRenderer) {
+		return super.getHeight(textRenderer) + 36;
 	}
 
 	@Override
@@ -132,7 +133,7 @@ public class SpawnEntityTooltipComponent extends EntityTooltipComponent<Inspecio
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
+	public void drawItems(TextRenderer textRenderer, int x, int y, int width, int height, DrawContext graphics) {
 		if (this.shouldRender()) {
 			MatrixStack matrices = graphics.getMatrices();
 			matrices.push();

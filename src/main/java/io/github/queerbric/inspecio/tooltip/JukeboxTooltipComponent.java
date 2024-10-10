@@ -69,7 +69,7 @@ public class JukeboxTooltipComponent extends InventoryTooltipComponent {
 	}
 
 	@Override
-	public int getHeight() {
+	public int getHeight(TextRenderer textRenderer) {
 		int height = 10;
 		if (this.config.getJukeboxTooltipMode() == JukeboxTooltipMode.FANCY)
 			height += 20;
@@ -92,8 +92,8 @@ public class JukeboxTooltipComponent extends InventoryTooltipComponent {
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
+	public void drawItems(TextRenderer textRenderer, int x, int y, int width, int height, DrawContext graphics) {
 		if (this.config.getJukeboxTooltipMode() == JukeboxTooltipMode.FANCY)
-			super.drawItems(textRenderer, x, y + 10, graphics);
+			super.drawItems(textRenderer, x, y + 10, width, height, graphics);
 	}
 }

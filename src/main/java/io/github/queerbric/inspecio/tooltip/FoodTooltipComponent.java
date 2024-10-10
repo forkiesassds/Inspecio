@@ -20,9 +20,11 @@ package io.github.queerbric.inspecio.tooltip;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.queerbric.inspecio.Inspecio;
 import io.github.queerbric.inspecio.SaturationTooltipMode;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.component.type.FoodComponent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
@@ -45,7 +47,7 @@ public record FoodTooltipComponent(int hunger, float saturation) implements Insp
 	}
 
 	@Override
-	public int getHeight() {
+	public int getHeight(TextRenderer textRenderer) {
 		var foodConfig = Inspecio.getConfig().getFoodConfig();
 		int height = Math.max(
 				11 * this.getLines(this.getHungerChunks()),
@@ -67,7 +69,7 @@ public record FoodTooltipComponent(int hunger, float saturation) implements Insp
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
+	public void drawItems(TextRenderer textRenderer, int x, int y, int width, int height, DrawContext graphics) {
 		var foodConfig = Inspecio.getConfig().getFoodConfig();
 
 		int saturationY = y;
@@ -81,51 +83,46 @@ public record FoodTooltipComponent(int hunger, float saturation) implements Insp
 		if (foodConfig.hasHunger()) {
 			for (int i = 0; i < (this.hunger + 1) / 2; i++) {
 				pos.wrap(i);
-				graphics.drawGuiTexture(FOOD_EMPTY_TEXTURE, pos.x, pos.y, 9, 9);
+				graphics.drawGuiTexture(RenderLayer::getGuiTextured, FOOD_EMPTY_TEXTURE, pos.x, pos.y, 9, 9);
 				pos.moveForward();
 			}
 		}
 
 		// Draw saturation outline.
 		if (foodConfig.getSaturationMode().isEnabled()) {
-			RenderSystem.setShaderColor(159 / 255.f, 134 / 255.f, 9 / 255.f, 1.f);
-
 			pos.reset(x, saturationY);
 
 			for (int i = 0; i < this.saturation; i++) {
 				pos.wrap(i);
 
-				int width = 9;
+				int fWidth = 9;
 				if (this.saturation - i < 1f) {
-					width = Math.round(width * (saturation - i));
+					fWidth = Math.round(fWidth * (saturation - i));
 				}
-				graphics.drawGuiTexture(FOOD_OUTLINE_TEXTURE, 9, 9, 0, 0, pos.x, pos.y, width, 9);
+				graphics.drawSprite(RenderLayer::getGuiTextured, graphics.guiAtlasManager.getSprite(FOOD_OUTLINE_TEXTURE), 9, 9, 0, 0, pos.x, pos.y, fWidth, 9, 0xFF9F8609);
 
 				pos.moveForward();
 			}
 		}
 
 		// Draw hunger bars.
-		RenderSystem.setShaderColor(1.f, 1.f, 1.f, 1.f);
 		if (foodConfig.hasHunger()) {
 			pos.reset(x, y);
 
 			for (int i = 0; i < this.hunger / 2; i++) {
 				pos.wrap(i);
-				graphics.drawGuiTexture(FOOD_FULL_TEXTURE, pos.x, pos.y, 9, 9);
+				graphics.drawGuiTexture(RenderLayer::getGuiTextured, FOOD_FULL_TEXTURE, pos.x, pos.y, 9, 9);
 				pos.moveForward();
 			}
 
 			if (this.hunger % 2 == 1) {
 				pos.wrap(this.hunger / 2);
-				graphics.drawGuiTexture(FOOD_HALF_TEXTURE, pos.x, pos.y, 9, 9);
+				graphics.drawGuiTexture(RenderLayer::getGuiTextured, FOOD_HALF_TEXTURE, pos.x, pos.y, 9, 9);
 			}
 		}
 
 		// Draw saturation bar if separate (or alone).
 		if (foodConfig.getSaturationMode() == SaturationTooltipMode.SEPARATED || !foodConfig.hasHunger()) {
-			RenderSystem.setShaderColor(229 / 255.f, 204 / 255.f, 209 / 255.f, 1.f);
-
 			pos.reset(x, saturationY);
 
 			int intSaturation = Math.max(1, this.getSaturation());
@@ -134,16 +131,14 @@ public record FoodTooltipComponent(int hunger, float saturation) implements Insp
 
 			for (int i = 0; i < intSaturation / 2; i++) {
 				pos.wrap(i);
-				graphics.drawGuiTexture(FOOD_FULL_TEXTURE, pos.x, pos.y, 9, 9);
+				graphics.drawGuiTexture(RenderLayer::getGuiTextured, FOOD_FULL_TEXTURE, pos.x, pos.y, 9, 9, 0xFFE5CCD1);
 				pos.moveForward();
 			}
 
 			if (intSaturation % 2 == 1) {
 				pos.wrap(intSaturation / 2);
-				graphics.drawGuiTexture(FOOD_HALF_TEXTURE, pos.x, pos.y, 9, 9);
+				graphics.drawGuiTexture(RenderLayer::getGuiTextured, FOOD_HALF_TEXTURE, pos.x, pos.y, 9, 9, 0xFFE5CCD1);
 			}
-
-			RenderSystem.setShaderColor(1.f, 1.f, 1.f, 1.f);
 		}
 	}
 

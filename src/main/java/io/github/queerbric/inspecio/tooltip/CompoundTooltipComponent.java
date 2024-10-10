@@ -39,10 +39,10 @@ public class CompoundTooltipComponent implements TooltipComponent, InspecioToolt
 	}
 
 	@Override
-	public int getHeight() {
+	public int getHeight(TextRenderer textRenderer) {
 		int height = 0;
 		for (var comp : components) {
-			height += comp.getHeight();
+			height += comp.getHeight(textRenderer);
 		}
 		return height;
 	}
@@ -59,11 +59,11 @@ public class CompoundTooltipComponent implements TooltipComponent, InspecioToolt
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
+	public void drawItems(TextRenderer textRenderer, int x, int y, int width, int height, DrawContext graphics) {
 		int yOff = 0;
 		for (var comp : components) {
-			comp.drawItems(textRenderer, x, y + yOff, graphics);
-			yOff += comp.getHeight();
+			comp.drawItems(textRenderer, x, y + yOff, width, height, graphics);
+			yOff += comp.getHeight(textRenderer);
 		}
 	}
 
@@ -72,7 +72,7 @@ public class CompoundTooltipComponent implements TooltipComponent, InspecioToolt
 		int yOff = 0;
 		for (var comp : components) {
 			comp.drawText(textRenderer, x, y + yOff, matrix4f, immediate);
-			yOff += comp.getHeight();
+			yOff += comp.getHeight(textRenderer);
 		}
 	}
 }

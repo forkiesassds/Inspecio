@@ -112,8 +112,15 @@ public abstract class BlockItemMixin extends Item {
 
 	@Inject(method = "appendTooltip", at = @At("HEAD"), cancellable = true)
 	private void onAppendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type, CallbackInfo ci) {
+		var config = Inspecio.getConfig().getEntitiesConfig();
+
 		if (this.getBlock() instanceof ShulkerBoxBlock && !Screen.hasControlDown()) {
 			Inspecio.appendBlockItemTooltip(stack, this.getBlock(), tooltip);
+			ci.cancel();
+		}
+
+		if (this.getBlock() instanceof BeehiveBlock && config.getBeeConfig().isEnabled() &&
+				config.getBeeConfig().shouldShowHoney()) {
 			ci.cancel();
 		}
 	}

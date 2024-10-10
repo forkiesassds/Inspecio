@@ -28,13 +28,17 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.render.LightmapTextureManager;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider.Immediate;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.texture.StatusEffectSpriteManager;
+import net.minecraft.component.type.ConsumableComponent;
 import net.minecraft.component.type.FoodComponent;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffectUtil;
+import net.minecraft.item.consume.ApplyEffectsConsumeEffect;
+import net.minecraft.item.consume.ConsumeEffect;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
@@ -59,10 +63,13 @@ public class StatusEffectTooltipComponent implements InspecioTooltipData, Toolti
 		this.multiplier = multiplier;
 	}
 
-	public StatusEffectTooltipComponent(List<FoodComponent.StatusEffectEntry> list) {
+	public StatusEffectTooltipComponent(List<ConsumeEffect> list) {
 		for (var pair : list) {
-			this.list.add(pair.effect());
-			this.chances.add(pair.probability());
+			if (pair.getType() == ConsumeEffect.Type.APPLY_EFFECTS) {
+				var effect = (ApplyEffectsConsumeEffect) pair;
+                this.list.addAll(effect.effects());
+				this.chances.add(effect.probability());
+			}
 		}
 		this.multiplier = 1.f;
 	}
@@ -100,7 +107,7 @@ public class StatusEffectTooltipComponent implements InspecioTooltipData, Toolti
 	}
 
 	@Override
-	public int getHeight() {
+	public int getHeight(TextRenderer textRenderer) {
 		if (this.hidden) {
 			return 20;
 		}
@@ -131,9 +138,9 @@ public class StatusEffectTooltipComponent implements InspecioTooltipData, Toolti
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
+	public void drawItems(TextRenderer textRenderer, int x, int y, int width, int height, DrawContext graphics) {
 		if (this.hidden) {
-			graphics.drawTexture(MYSTERY_TEXTURE, x, y, 0, 0, 18, 18, 18, 18);
+			graphics.drawTexture(RenderLayer::getGuiTextured, MYSTERY_TEXTURE, x, y, 0, 0, 18, 18, 18, 18);
 		} else {
 			MinecraftClient client = MinecraftClient.getInstance();
 			StatusEffectSpriteManager statusEffectSpriteManager = client.getStatusEffectSpriteManager();
@@ -141,7 +148,7 @@ public class StatusEffectTooltipComponent implements InspecioTooltipData, Toolti
 				StatusEffectInstance statusEffectInstance = list.get(i);
 				RegistryEntry<StatusEffect> statusEffect = statusEffectInstance.getEffectType();
 				var sprite = statusEffectSpriteManager.getSprite(statusEffect);
-				graphics.drawSprite(x, y + i * 20, 0, 18, 18, sprite);
+				graphics.drawGuiTexture(RenderLayer::getGuiTextured, sprite, x, y + i * 20, 18, 18);
 			}
 		}
 	}

@@ -28,6 +28,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.item.tooltip.TooltipData;
 
 import java.util.Optional;
@@ -54,7 +55,7 @@ public class ArmorStandTooltipComponent extends EntityTooltipComponent<InspecioC
 			return Optional.empty();
 
 		var client = MinecraftClient.getInstance();
-		var entity = entityType.create(client.world);
+		var entity = entityType.create(client.world, SpawnReason.LOAD);
         assert entity != null;
 
         itemNbt.applyToEntity(entity);
@@ -62,7 +63,7 @@ public class ArmorStandTooltipComponent extends EntityTooltipComponent<InspecioC
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
+	public void drawItems(TextRenderer textRenderer, int x, int y, int width, int height, DrawContext graphics) {
 		if (this.shouldRender()) {
 			MatrixStack matrices = graphics.getMatrices();
 			matrices.push();
@@ -75,8 +76,8 @@ public class ArmorStandTooltipComponent extends EntityTooltipComponent<InspecioC
 	}
 
 	@Override
-	public int getHeight() {
-		return super.getHeight() + 16;
+	public int getHeight(TextRenderer textRenderer) {
+		return super.getHeight(textRenderer) + 16;
 	}
 
 	@Override
